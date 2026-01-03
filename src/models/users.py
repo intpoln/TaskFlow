@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import String
+from sqlalchemy import String, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql import func
 
@@ -15,3 +15,4 @@ class UserOrm(Base):
     hashed_password: Mapped[str] = mapped_column(String(100))
     username: Mapped[str] = mapped_column(String(60), unique=True)
     created_at: Mapped[datetime] = mapped_column(default=func.now())
+    tasks: Mapped[list[int] | None] = mapped_column(ForeignKey('tasks.id'), default=None)
