@@ -11,8 +11,9 @@ class UserOrm(Base):
     __tablename__ = "users"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    email: Mapped[str] = mapped_column(String(60), unique=True)
-    hashed_password: Mapped[str] = mapped_column(String(100))
-    username: Mapped[str] = mapped_column(String(60), unique=True)
+    email: Mapped[int | None] = mapped_column(String(60), unique=True, default=None, nullable=True)
+    hashed_password: Mapped[int | None] = mapped_column(unique=True, default=None, nullable=True)
+    username: Mapped[int | None] = mapped_column(unique=True, default=None, nullable=True)
     created_at: Mapped[datetime] = mapped_column(default=func.now())
-    tasks: Mapped[list[int] | None] = mapped_column(ForeignKey('tasks.id'), default=None)
+    telegram_id: Mapped[int | None] = mapped_column(unique=True, default=None, nullable=True)
+    tasks: Mapped[list[int] | None] = mapped_column(ForeignKey("tasks.id"), default=None)
