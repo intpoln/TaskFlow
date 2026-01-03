@@ -4,13 +4,11 @@ services:
     image: postgres:latest
     container_name: pg
     networks:
-      - taskflow
+      - taskflow_network
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: booking
-    ports:
-      - "5432:5432"
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=taskflow
     volumes:
       - ./postgres/pgdata:/var/lib/postgresql
     healthcheck:
@@ -23,14 +21,43 @@ services:
     image: redis:latest
     container_name: cache
     networks:
-      - taskflow
-    ports:
-      - '6379:6379'
+      - taskflow_network
+    command: redis-server --requirepass RedisPassword
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
       timeout: 3s
       retries: 5
 
+  taskflow_backend_service:
+    container_name: taskflow_backend
+    networks:
+      - taskflow_network
+    image: intpoln/taskflow:latest
+    ports:
+      - '8000:8000'
+    env_file:
+      - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: python src/main.py
+
+  taskflow_celery_service:
+    container_name: taskflow_celery
+    networks:
+      - taskflow_network
+    image: intpoln/taskflow:latest
+    env_file:
+      - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: celery --app src.tasks.celery_app:celery_instance worker -l INFO -B
+
 networks:
-  taskflow:
+  taskflow_network:

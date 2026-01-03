@@ -1,13 +1,28 @@
+import logging
 import sys
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 import uvicorn
 from fastapi import FastAPI
 from fastapi.openapi.docs import get_swagger_ui_html
+from fastapi_cache import FastAPICache
+from fastapi_cache.backends.redis import RedisBackend
 
 sys.path.append(str(Path(__file__).parent.parent))
-app = FastAPI(docs_url=None)
 
+from src.init import redis_manager
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    await redis_manager.connect()
+    FastAPICache.init(RedisBackend(redis_manager._redis), prefix="fastapi-cache")
+    yield
+    await redis_manager.close()
+
+logging.basicConfig(level=logging.INFO)
+app = FastAPI(docs_url=None, lifespan=lifespan)
 
 @app.get("/docs", include_in_schema=False)
 async def custom_swagger_ui_html():

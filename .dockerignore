@@ -1,0 +1,9 @@
+.venv/
+postgres/
+.gitignore
+.git/
+.idea/
+README.md
+.ruff_cache/
+docker-compose.yml
+docker-compose.production.yml
