@@ -12,7 +12,6 @@ dependencies = [
     "fastapi-cache2>=0.2.2",
     "jwt>=1.4.0",
     "passlib>=1.7.4",
-    "psycopg[binary]>=3.3.2",
     "pydantic-settings>=2.12.0",
     "pytest>=9.0.2",
     "redis>=7.1.0",
