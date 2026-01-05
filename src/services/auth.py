@@ -1,32 +1,59 @@
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone, timedelta
 
+import bcrypt
 import jwt
-from passlib.context import CryptContext
+from jwt.exceptions import InvalidTokenError
 
 from src.config import settings
-from src.services.base import BaseService
 
 
-class AuthService(BaseService):
-    pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+class AuthService:
 
-    def create_access_token(self, data: dict):
+    def create_access_token(self, data: dict) -> str:
         to_encode = data.copy()
         expire = datetime.now(timezone.utc) + timedelta(
             minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
         )
-        to_encode |= {"exp": expire}  # == to_encode.update({'exp': expire})
-        encoded_jwt = jwt.encode(
+        to_encode |= {"exp": expire, 'type': 'access'}
+        return jwt.encode(
             to_encode, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITM
         )
-        return encoded_jwt
+
+    def decode_access_token(self, token: str) -> dict | None:
+        try:
+            payload = jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITM])
+            if payload.get('type') != 'access':
+                return None
+            return payload
+        except InvalidTokenError:
+            return None
+
+    def create_refresh_token(self, data: dict) -> str:
+        to_encode = data.copy()
+        expire = datetime.now(timezone.utc) + timedelta(
+            days=settings.REFRESH_TOKEN_EXPIRE_DAYS
+        )
+        to_encode |= {"exp": expire, "type": "refresh"}
+        return jwt.encode(
+            to_encode, settings.JWT_REFRESH_SECRET_KEY, algorithm=settings.JWT_ALGORITM
+        )
+
+    def decode_refresh_token(self, token: str) -> dict | None:
+        try:
+            payload = jwt.decode(token, settings.JWT_REFRESH_SECRET_KEY, algorithms=[settings.JWT_ALGORITM])
+            if payload.get('type') != 'refresh':
+                return None
+            return payload
+        except InvalidTokenError:
+            return None
 
     def hash_password(self, password: str) -> str:
-        hashed_password = self.pwd_context.hash(password)
-        return hashed_password
+        salt = bcrypt.gensalt()
+        hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt)
+        return hashed_password.decode('utf-8')
 
-    def verify_password(self, plain_password, hashed_password):
-        return self.pwd_context.verify(plain_password, hashed_password)
-
-    def decode_access_token(self, token: str):
-        return jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITM])
+    def verify_password(self, password: str, hashed_password: str) -> bool:
+        return bcrypt.checkpw(
+            password.encode('utf-8'),
+            hashed_password.encode('utf-8')
+        )

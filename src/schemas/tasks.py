@@ -1,23 +1,22 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from pydantic import BaseModel
 
+from src.models.tasks import TaskStatus
 
-class TaskAdd(BaseModel):
-   category: int | None = None
-   description: str
-   date_from: datetime | None = None
-   date_to: datetime | None = None
 
-class TaskUpdate(BaseModel):
-    category: int | None = None
-    description: str | None = None
-    date_from: datetime | None = None
-    date_to: datetime | None = None
-
-class Task(BaseModel):
-    id: int
-    category: int
+class TaskRequest(BaseModel):
+    title: str
     description: str
-    date_from: datetime
-    date_to: datetime
+    status: TaskStatus = TaskStatus.TODO
+    deadline: datetime = datetime.now() + timedelta(days=1)
+    notify: bool = False
+
+class TaskAdd(TaskRequest):
+    project_id: int
+    user_id: int
+
+class Task(TaskAdd):
+    id: int
+    created_at: datetime
+    updated_at: datetime

@@ -8,9 +8,15 @@ from fastapi import FastAPI
 from fastapi.openapi.docs import get_swagger_ui_html
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
+from fastapi.responses import RedirectResponse
+from sqladmin import Admin
 
 sys.path.append(str(Path(__file__).parent.parent))
 
+from src.admin.config import UserAdmin, CategoryAdmin, authentication_backend
+from src.api.users import router as users_router
+from src.api.auth import router as auth_router
+from src.database import engine
 from src.init import redis_manager
 
 
@@ -21,8 +27,17 @@ async def lifespan(app: FastAPI):
     yield
     await redis_manager.close()
 
+
 logging.basicConfig(level=logging.INFO)
 app = FastAPI(docs_url=None, lifespan=lifespan)
+admin = Admin(app, engine, authentication_backend=authentication_backend)
+admin.add_view(UserAdmin)
+admin.add_view(CategoryAdmin)
+
+app.include_router(auth_router)
+app.include_router(users_router)
+
+
 
 @app.get("/docs", include_in_schema=False)
 async def custom_swagger_ui_html():
@@ -33,6 +48,11 @@ async def custom_swagger_ui_html():
         swagger_js_url="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js",
         swagger_css_url="https://unpkg.com/swagger-ui-dist@5/swagger-ui.css",
     )
+
+
+@app.get("/", include_in_schema=False)
+async def root():
+    return RedirectResponse(url="/docs")
 
 
 if __name__ == "__main__":

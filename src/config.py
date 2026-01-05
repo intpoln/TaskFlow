@@ -25,8 +25,14 @@ class Settings(BaseSettings):
         return f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASS}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
 
     JWT_SECRET_KEY: str
+    JWT_REFRESH_SECRET_KEY: str
     JWT_ALGORITM: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int
+    REFRESH_TOKEN_EXPIRE_DAYS: int
+
+    SUPERUSER_EMAIL: str
+    SUPERUSER_USERNAME: str
+    SUPERUSER_PASSWORD: str
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 

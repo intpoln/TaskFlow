@@ -208,3 +208,6 @@ __marimo__/
 
 /postgres/
 docker-compose.production.yml
+docker-compose.dev.yml
+task.md
+/ROADMAP.md

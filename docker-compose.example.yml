@@ -1,7 +1,7 @@
 services:
 
   postgres:
-    image: postgres:latest
+    image: postgres:18
     container_name: pg
     networks:
       - taskflow_network
@@ -18,7 +18,7 @@ services:
       retries: 5
 
   redis:
-    image: redis:latest
+    image: redis:8.4
     container_name: cache
     networks:
       - taskflow_network
@@ -43,15 +43,16 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-    command: python src/main.py
+    command:
+      bash -c "alembic upgrade head
+      && python -m src.scripts.create_superuser
+      && python src/main.py"
 
   taskflow_celery_service:
     container_name: taskflow_celery
     networks:
       - taskflow_network
     image: intpoln/taskflow:latest
-    env_file:
-      - .env
     depends_on:
       postgres:
         condition: service_healthy

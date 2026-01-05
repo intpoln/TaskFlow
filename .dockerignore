@@ -5,5 +5,8 @@ postgres/
 .idea/
 README.md
 .ruff_cache/
-docker-compose.yml
+docker-compose.example.yml
 docker-compose.production.yml
+tests/
+task.md
+ROADMAP.md

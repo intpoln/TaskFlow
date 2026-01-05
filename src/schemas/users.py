@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, ConfigDict
 
 
 class UserRegister(BaseModel):
@@ -21,8 +21,11 @@ class UserAdd(BaseModel):
 
 
 class User(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     email: EmailStr
-    hashed_password: str
     username: str
     created_at: datetime
+    telegram_id: int | None = None
+    telegram_username: str | None = None
