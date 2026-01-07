@@ -9,7 +9,8 @@ from src.config import settings
 
 class AuthService:
 
-    def create_access_token(self, data: dict) -> str:
+    @staticmethod
+    def create_access_token(data: dict) -> str:
         to_encode = data.copy()
         expire = datetime.now(timezone.utc) + timedelta(
             minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
@@ -19,7 +20,8 @@ class AuthService:
             to_encode, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITM
         )
 
-    def decode_access_token(self, token: str) -> dict | None:
+    @staticmethod
+    def decode_access_token(token: str) -> dict | None:
         try:
             payload = jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITM])
             if payload.get('type') != 'access':
@@ -28,7 +30,8 @@ class AuthService:
         except InvalidTokenError:
             return None
 
-    def create_refresh_token(self, data: dict) -> str:
+    @staticmethod
+    def create_refresh_token(data: dict) -> str:
         to_encode = data.copy()
         expire = datetime.now(timezone.utc) + timedelta(
             days=settings.REFRESH_TOKEN_EXPIRE_DAYS
@@ -38,7 +41,8 @@ class AuthService:
             to_encode, settings.JWT_REFRESH_SECRET_KEY, algorithm=settings.JWT_ALGORITM
         )
 
-    def decode_refresh_token(self, token: str) -> dict | None:
+    @staticmethod
+    def decode_refresh_token(token: str) -> dict | None:
         try:
             payload = jwt.decode(token, settings.JWT_REFRESH_SECRET_KEY, algorithms=[settings.JWT_ALGORITM])
             if payload.get('type') != 'refresh':
@@ -47,13 +51,26 @@ class AuthService:
         except InvalidTokenError:
             return None
 
-    def hash_password(self, password: str) -> str:
+    @staticmethod
+    def hash_password(password: str) -> str:
         salt = bcrypt.gensalt()
         hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt)
         return hashed_password.decode('utf-8')
 
-    def verify_password(self, password: str, hashed_password: str) -> bool:
+    @staticmethod
+    def verify_password(password: str, hashed_password: str) -> bool:
         return bcrypt.checkpw(
             password.encode('utf-8'),
             hashed_password.encode('utf-8')
         )
+
+    @staticmethod
+    def get_token_payload(token: str) -> dict | None:
+        return AuthService.decode_access_token(token)
+
+    @staticmethod
+    def get_user_id_from_token(token: str) -> int | None:
+        payload = AuthService.decode_access_token(token)
+        if not payload:
+            return None
+        return payload.get('user_id')

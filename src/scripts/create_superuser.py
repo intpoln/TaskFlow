@@ -16,7 +16,7 @@ async def create_superuser():
         if existing:
             return
 
-        hashed_password = AuthService().hash_password(settings.SUPERUSER_PASSWORD)
+        hashed_password = AuthService.hash_password(settings.SUPERUSER_PASSWORD)
         superuser = UserOrm(
             email=settings.SUPERUSER_EMAIL,
             username=settings.SUPERUSER_USERNAME,

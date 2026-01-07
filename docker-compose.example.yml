@@ -19,6 +19,7 @@ services:
 
   redis:
     image: redis:8.4
+    restart: unless-stopped
     container_name: cache
     networks:
       - taskflow_network
@@ -28,6 +29,10 @@ services:
       interval: 5s
       timeout: 3s
       retries: 5
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   taskflow_backend_service:
     container_name: taskflow_backend

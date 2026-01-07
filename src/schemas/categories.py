@@ -1,9 +1,13 @@
 from pydantic import BaseModel
 
 
-class TaskAdd(BaseModel):
-    name: str
+class CategoryAdd(BaseModel):
+    title: str
 
 
-class Task(TaskAdd):
+class Category(CategoryAdd):
     id: int
+
+
+class CategoryUpdate(BaseModel):
+    title: str | None = None

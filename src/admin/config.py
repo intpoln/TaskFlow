@@ -27,13 +27,13 @@ class AdminAuth(AuthenticationBackend):
         if not user:
             return False
 
-        if not AuthService().verify_password(password, user.hashed_password):
+        if not AuthService.verify_password(password, user.hashed_password):
             return False
 
         if not user.is_superuser:
             return False
 
-        access_token = AuthService().create_access_token({"user_id": user.id})
+        access_token = AuthService.create_access_token({"user_id": user.id})
         request.session.update({"access_token": access_token})
 
         return True
@@ -47,7 +47,7 @@ class AdminAuth(AuthenticationBackend):
 
         if not token:
             return False
-        payload = AuthService().decode_access_token(token)
+        payload = AuthService.decode_access_token(token)
         return payload is not None
 
 authentication_backend = AdminAuth(secret_key=settings.JWT_SECRET_KEY)
@@ -66,10 +66,11 @@ class UserAdmin(ModelView, model=User):
 
 
 class CategoryAdmin(ModelView, model=Category):
-    column_list = ["__all__"]
+    column_list = [Category.id, Category.title]
     can_create = True
     can_edit = True
     can_delete = True
     can_view_details = True
     name = 'Category'
     name_plural = 'Categories'
+    column_searchable_list = column_sortable_list = [Category.id, Category.title,]

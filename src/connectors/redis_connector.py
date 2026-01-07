@@ -39,7 +39,7 @@ class RedisManager:
 
     async def get(self, key: str):
         if not self._connected or not self._redis:
-            return
+            return None
         try:
             return await self._redis.get(key)
         except RedisConnectionError:

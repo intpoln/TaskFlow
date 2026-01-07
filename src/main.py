@@ -16,6 +16,8 @@ sys.path.append(str(Path(__file__).parent.parent))
 from src.admin.config import UserAdmin, CategoryAdmin, authentication_backend
 from src.api.users import router as users_router
 from src.api.auth import router as auth_router
+from src.api.categories import router as category_router
+from src.api.projects import router as project_router
 from src.database import engine
 from src.init import redis_manager
 
@@ -36,6 +38,8 @@ admin.add_view(CategoryAdmin)
 
 app.include_router(auth_router)
 app.include_router(users_router)
+app.include_router(category_router)
+app.include_router(project_router)
 
 
 

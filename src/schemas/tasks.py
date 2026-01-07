@@ -11,12 +11,20 @@ class TaskRequest(BaseModel):
     status: TaskStatus = TaskStatus.TODO
     deadline: datetime = datetime.now() + timedelta(days=1)
     notify: bool = False
+    project_id: int
 
 class TaskAdd(TaskRequest):
-    project_id: int
-    user_id: int
+    owner_id: int
 
 class Task(TaskAdd):
     id: int
     created_at: datetime
     updated_at: datetime
+
+class TaskUpdate(BaseModel):
+    title: str | None = None
+    description: str | None = None
+    status: TaskStatus | None = None
+    deadline: datetime | None = None
+    notify: bool | None = None
+    project_id: int | None = None
