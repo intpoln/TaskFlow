@@ -1,7 +1,7 @@
 from datetime import datetime
 from enum import Enum
 
-from sqlalchemy import ForeignKey, func, UniqueConstraint
+from sqlalchemy import ForeignKey, func, UniqueConstraint, ForeignKeyConstraint, DateTime
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.dialects.postgresql import ENUM as PgEnum
 
@@ -22,6 +22,11 @@ class TaskOrm(Base):
 
     __table_args__ = (
         UniqueConstraint('project_id', 'title', name='unique_project_task.title'),
+        ForeignKeyConstraint(
+            ['project_id', 'owner_id'],
+            ['projects.id', 'projects.owner_id'],
+            name='fk_task_project_owner'
+        )
     )
 
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -32,9 +37,10 @@ class TaskOrm(Base):
         nullable=False,
         default=TaskStatus.TODO
     )
-    deadline: Mapped[datetime | None] = mapped_column(nullable=True, default=None)
+    category_id: Mapped[int | None] = mapped_column(ForeignKey('categories.id'), default=None)
+    deadline: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True, default=None)
     notify: Mapped[bool] = mapped_column(default=False)
-    project_id: Mapped[int | None] = mapped_column(ForeignKey("projects.id"), default=None)
+    project_id: Mapped[int | None] = mapped_column(default=None)
     owner_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
-    created_at: Mapped[datetime] = mapped_column(default=func.now())
-    updated_at: Mapped[datetime] = mapped_column(default=func.now(), onupdate=func.now())
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=func.now(), onupdate=func.now())

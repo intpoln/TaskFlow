@@ -11,10 +11,11 @@ def default_deadline():
 class TaskRequest(BaseModel):
     title: str
     description: str
-    status: TaskStatus = TaskStatus.TODO,
+    status: TaskStatus = TaskStatus.TODO
     deadline: datetime = Field(default_factory=default_deadline)
     notify: bool = False
     project_id: int | None = None
+    category_id: int | None = None
 
 class TaskAdd(TaskRequest):
     owner_id: int
@@ -31,3 +32,4 @@ class TaskUpdate(BaseModel):
     deadline: datetime | None = None
     notify: bool | None = None
     project_id: int | None = None
+    category_id: int | None = None
