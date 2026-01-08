@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import ForeignKey, UniqueConstraint, DateTime
+from sqlalchemy import DateTime, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql import func
 
@@ -11,8 +11,8 @@ class ProjectOrm(Base):
     __tablename__ = "projects"
 
     __table_args__ = (
-        UniqueConstraint('owner_id', 'title', name='unique_project_title'),
-        UniqueConstraint('id', 'owner_id', name='uc_project_id_owner'),
+        UniqueConstraint("owner_id", "title", name="unique_project_title"),
+        UniqueConstraint("id", "owner_id", name="uc_project_id_owner"),
     )
 
     id: Mapped[int] = mapped_column(primary_key=True)

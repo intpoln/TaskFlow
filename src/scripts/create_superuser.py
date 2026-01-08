@@ -1,10 +1,11 @@
 import asyncio
+
 from sqlalchemy import select
 
+from src.config import settings
 from src.database import async_session_maker
 from src.models.users import UserOrm
 from src.services.auth import AuthService
-from src.config import settings
 
 
 async def create_superuser():
@@ -21,7 +22,7 @@ async def create_superuser():
             email=settings.SUPERUSER_EMAIL,
             username=settings.SUPERUSER_USERNAME,
             hashed_password=hashed_password,
-            is_superuser=True
+            is_superuser=True,
         )
         db.add(superuser)
         await db.commit()

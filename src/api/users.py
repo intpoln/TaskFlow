@@ -6,7 +6,7 @@ from src.api.dependencies import DBDep, user_is_superuser
 from src.models.users import UserOrm
 from src.schemas.users import User
 
-router = APIRouter(prefix='/users', tags=['Users'])
+router = APIRouter(prefix="/users", tags=["Users"])
 
 
 @router.get("", response_model=list[User], dependencies=[Depends(user_is_superuser)])

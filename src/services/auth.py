@@ -1,4 +1,4 @@
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta, timezone
 
 import bcrypt
 import jwt
@@ -8,23 +8,20 @@ from src.config import settings
 
 
 class AuthService:
-
     @staticmethod
     def create_access_token(data: dict) -> str:
         to_encode = data.copy()
         expire = datetime.now(timezone.utc) + timedelta(
             minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
         )
-        to_encode |= {"exp": expire, 'type': 'access'}
-        return jwt.encode(
-            to_encode, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITM
-        )
+        to_encode |= {"exp": expire, "type": "access"}
+        return jwt.encode(to_encode, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITM)
 
     @staticmethod
     def decode_access_token(token: str) -> dict | None:
         try:
             payload = jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITM])
-            if payload.get('type') != 'access':
+            if payload.get("type") != "access":
                 return None
             return payload
         except InvalidTokenError:
@@ -33,9 +30,7 @@ class AuthService:
     @staticmethod
     def create_refresh_token(data: dict) -> str:
         to_encode = data.copy()
-        expire = datetime.now(timezone.utc) + timedelta(
-            days=settings.REFRESH_TOKEN_EXPIRE_DAYS
-        )
+        expire = datetime.now(timezone.utc) + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
         to_encode |= {"exp": expire, "type": "refresh"}
         return jwt.encode(
             to_encode, settings.JWT_REFRESH_SECRET_KEY, algorithm=settings.JWT_ALGORITM
@@ -44,8 +39,10 @@ class AuthService:
     @staticmethod
     def decode_refresh_token(token: str) -> dict | None:
         try:
-            payload = jwt.decode(token, settings.JWT_REFRESH_SECRET_KEY, algorithms=[settings.JWT_ALGORITM])
-            if payload.get('type') != 'refresh':
+            payload = jwt.decode(
+                token, settings.JWT_REFRESH_SECRET_KEY, algorithms=[settings.JWT_ALGORITM]
+            )
+            if payload.get("type") != "refresh":
                 return None
             return payload
         except InvalidTokenError:
@@ -54,15 +51,12 @@ class AuthService:
     @staticmethod
     def hash_password(password: str) -> str:
         salt = bcrypt.gensalt()
-        hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt)
-        return hashed_password.decode('utf-8')
+        hashed_password = bcrypt.hashpw(password.encode("utf-8"), salt)
+        return hashed_password.decode("utf-8")
 
     @staticmethod
     def verify_password(password: str, hashed_password: str) -> bool:
-        return bcrypt.checkpw(
-            password.encode('utf-8'),
-            hashed_password.encode('utf-8')
-        )
+        return bcrypt.checkpw(password.encode("utf-8"), hashed_password.encode("utf-8"))
 
     @staticmethod
     def get_token_payload(token: str) -> dict | None:
@@ -73,4 +67,4 @@ class AuthService:
         payload = AuthService.decode_access_token(token)
         if not payload:
             return None
-        return payload.get('user_id')
+        return payload.get("user_id")

@@ -10,4 +10,4 @@ class Category(CategoryAdd):
 
 
 class CategoryUpdate(BaseModel):
-    title: str | None = None
+    title: str

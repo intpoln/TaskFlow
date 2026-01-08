@@ -8,9 +8,8 @@ Create Date: 2026-01-04 12:56:36.682182
 
 from typing import Sequence, Union
 
-from alembic import op
 import sqlalchemy as sa
-
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision: str = "4675022e110d"
@@ -47,7 +46,6 @@ def upgrade() -> None:
     op.create_foreign_key(None, "users", "tasks", ["tasks"], ["id"])
 
 
-
 def downgrade() -> None:
     """Downgrade schema."""
     op.drop_constraint(None, "users", type_="foreignkey")
@@ -55,4 +53,3 @@ def downgrade() -> None:
     op.drop_column("users", "tasks")
     op.drop_table("tasks")
     op.drop_table("categories")
-

@@ -5,16 +5,16 @@ from sqlalchemy import select
 
 from src.config import settings
 from src.database import async_session_maker
-from src.models.users import UserOrm as User
 from src.models.categories import CategoryOrm as Category
+from src.models.users import UserOrm as User
 from src.services.auth import AuthService
 
 
 class AdminAuth(AuthenticationBackend):
     async def login(self, request: Request) -> bool:
         form = await request.form()
-        username = form.get('username')
-        password = form.get('password')
+        username = form.get("username")
+        password = form.get("password")
 
         if not username or not password:
             return False
@@ -43,12 +43,13 @@ class AdminAuth(AuthenticationBackend):
         return True
 
     async def authenticate(self, request: Request) -> bool:
-        token = request.session.get('access_token')
+        token = request.session.get("access_token")
 
         if not token:
             return False
         payload = AuthService.decode_access_token(token)
         return payload is not None
+
 
 authentication_backend = AdminAuth(secret_key=settings.JWT_SECRET_KEY)
 
@@ -59,10 +60,15 @@ class UserAdmin(ModelView, model=User):
     can_edit = False
     can_delete = False
     can_view_details = True
-    name = 'User'
-    name_plural = 'Users'
-    column_searchable_list = column_sortable_list = [User.email, User.id, User.username,
-                                                     User.created_at, User.telegram_username]
+    name = "User"
+    name_plural = "Users"
+    column_searchable_list = column_sortable_list = [
+        User.email,
+        User.id,
+        User.username,
+        User.created_at,
+        User.telegram_username,
+    ]
 
 
 class CategoryAdmin(ModelView, model=Category):
@@ -71,6 +77,9 @@ class CategoryAdmin(ModelView, model=Category):
     can_edit = True
     can_delete = True
     can_view_details = True
-    name = 'Category'
-    name_plural = 'Categories'
-    column_searchable_list = column_sortable_list = [Category.id, Category.title,]
+    name = "Category"
+    name_plural = "Categories"
+    column_searchable_list = column_sortable_list = [
+        Category.id,
+        Category.title,
+    ]

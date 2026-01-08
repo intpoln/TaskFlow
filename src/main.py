@@ -7,19 +7,19 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.docs import get_swagger_ui_html
+from fastapi.responses import RedirectResponse
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
-from fastapi.responses import RedirectResponse
 from sqladmin import Admin
 
 sys.path.append(str(Path(__file__).parent.parent))
 
-from src.admin.config import UserAdmin, CategoryAdmin, authentication_backend
-from src.api.users import router as users_router
+from src.admin.config import CategoryAdmin, UserAdmin, authentication_backend
 from src.api.auth import router as auth_router
 from src.api.categories import router as category_router
 from src.api.projects import router as project_router
 from src.api.tasks import router as task_router
+from src.api.users import router as users_router
 from src.database import engine
 from src.init import redis_manager
 
