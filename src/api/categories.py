@@ -6,13 +6,13 @@ from sqlalchemy.exc import IntegrityError
 from src.api.dependencies import DBDep
 from src.models.categories import CategoryOrm
 from src.schemas.categories import Category, CategoryAdd
-from src.utils.auth import user_is_superuser
+from src.utils.auth import user_is_superuser, get_current_user
 
 router = APIRouter(prefix='/categories', tags=['categories'])
 
 
-@router.get("", response_model=list[Category])
-@cache(expire=10)
+@router.get("", response_model=list[Category], dependencies=[Depends(get_current_user)])
+@cache(expire=15)
 async def get_categories(db: DBDep):
     query = select(CategoryOrm)
     result = await db.execute(query)

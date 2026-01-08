@@ -1,7 +1,7 @@
-from fastapi import APIRouter, HTTPException, Response, Request, Depends
+from fastapi import APIRouter, HTTPException, Response, Request
 from sqlalchemy import select, insert, or_
 
-from src.api.dependencies import DBDep, get_current_user
+from src.api.dependencies import DBDep, CurrentUserDep
 from src.config import settings
 from src.models import UserOrm
 from src.schemas.users import UserRegister, UserLogin, User
@@ -49,13 +49,15 @@ async def login(db: DBDep, data: UserLogin, response: Response):
     response.set_cookie(key='access_token', value=access_token)
 
     refresh_token = AuthService.create_refresh_token({"user_id": existing_user.id})
-    refresh_max_age = settings.REFRESH_TOKEN_EXPIRE_DAYS * 60 * 60 * 24
-    response.set_cookie(key='refresh_token', value=refresh_token, max_age=refresh_max_age)
+    refresh_max_age = settings.REFRESH_TOKEN_COOKIE_MAX_AGE
+    response.set_cookie(
+            key='refresh_token', value=refresh_token, max_age=refresh_max_age, httponly=True
+        )
 
     return {'status': True, 'message': 'Вы успешно вошли'}
 
 @router.get('/me', response_model=User)
-async def me(user: User = Depends(get_current_user)):
+async def me(user: CurrentUserDep):
     return user
 
 
@@ -64,3 +66,35 @@ async def logout(response: Response):
     response.delete_cookie(key='access_token')
     response.delete_cookie(key='refresh_token')
     return {'status': True, 'message': 'Вы успешно вышли'}
+
+
+@router.post('/refresh')
+async def refresh_tokens(
+        response: Response,
+        request: Request,
+):
+    refresh_token = request.cookies.get('refresh_token')
+    if not refresh_token:
+        raise HTTPException(401, 'Refresh токен отсутствует')
+
+    payload = AuthService.decode_refresh_token(refresh_token)
+
+    if not payload:
+        response.delete_cookie(key='refresh_token')
+        response.delete_cookie(key='access_token')
+        raise HTTPException(401, 'Refresh токен истёк, авторизуйтесь заново')
+
+    user_id = payload.get('user_id')
+    if not user_id:
+        raise HTTPException(401, 'Невалидный refresh токен')
+
+    new_access_token = AuthService.create_access_token({"user_id": user_id})
+    response.set_cookie(key='access_token', value=new_access_token)
+
+    new_refresh_token = AuthService.create_refresh_token({"user_id": user_id})
+    refresh_max_age = settings.REFRESH_TOKEN_COOKIE_MAX_AGE
+    response.set_cookie(
+        key='refresh_token', value=new_refresh_token, max_age=refresh_max_age, httponly=True
+    )
+
+    return {"status": True, "message": "Токены обновлены!"}

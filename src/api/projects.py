@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException
+from fastapi_cache.decorator import cache
 from sqlalchemy import select, insert
 from sqlalchemy.exc import IntegrityError
 
@@ -10,6 +11,7 @@ router = APIRouter(prefix='/projects', tags=['projects'])
 
 
 @router.get('', response_model=list[Project])
+@cache(expire=15)
 async def get_projects(db: DBDep, user_id: CurrentUserIdDep):
     query = select(ProjectOrm).filter_by(owner_id=user_id)
     result = await db.execute(query)
@@ -18,7 +20,6 @@ async def get_projects(db: DBDep, user_id: CurrentUserIdDep):
 
 @router.post('', response_model=Project)
 async def create_project(db: DBDep, data: ProjectRequest, user_id: CurrentUserIdDep):
-
     try:
         add_stmt = insert(ProjectOrm).values(**data.model_dump(exclude_unset=True), owner_id=user_id).returning(ProjectOrm)
         result = await db.execute(add_stmt)

@@ -5,6 +5,7 @@ from pathlib import Path
 
 import uvicorn
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.docs import get_swagger_ui_html
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
@@ -18,6 +19,7 @@ from src.api.users import router as users_router
 from src.api.auth import router as auth_router
 from src.api.categories import router as category_router
 from src.api.projects import router as project_router
+from src.api.tasks import router as task_router
 from src.database import engine
 from src.init import redis_manager
 
@@ -40,7 +42,15 @@ app.include_router(auth_router)
 app.include_router(users_router)
 app.include_router(category_router)
 app.include_router(project_router)
+app.include_router(task_router)
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.get("/docs", include_in_schema=False)

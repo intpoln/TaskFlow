@@ -10,7 +10,7 @@ router = APIRouter(prefix='/users', tags=['Users'])
 
 
 @router.get("", response_model=list[User], dependencies=[Depends(user_is_superuser)])
-@cache(expire=10)
+@cache(expire=15)
 async def get_users(db: DBDep):
     query = select(UserOrm)
     result = await db.execute(query)

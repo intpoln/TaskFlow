@@ -1,17 +1,20 @@
 from datetime import datetime, timedelta
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from src.models.tasks import TaskStatus
+
+def default_deadline():
+    return datetime.now() + timedelta(days=1)
 
 
 class TaskRequest(BaseModel):
     title: str
     description: str
-    status: TaskStatus = TaskStatus.TODO
-    deadline: datetime = datetime.now() + timedelta(days=1)
+    status: TaskStatus = TaskStatus.TODO,
+    deadline: datetime = Field(default_factory=default_deadline)
     notify: bool = False
-    project_id: int
+    project_id: int | None = None
 
 class TaskAdd(TaskRequest):
     owner_id: int
