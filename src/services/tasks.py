@@ -1,6 +1,6 @@
 from src.schemas.tasks import Task, TaskRequest, TaskPUT, TaskUpdate
 from src.services.base import BaseService
-from src.core.exceptions import NotFoundError
+
 
 
 class TaskService(BaseService):
@@ -13,18 +13,10 @@ class TaskService(BaseService):
         return await self.db.tasks.get_user_tasks(user_id=user_id, search=search, status=status)
 
     async def get_task(self, task_id: int, user_id) -> Task:
-        return await self.db.get_user_task(task_id=task_id, user_id=user_id)
+        return await self.db.tasks.get_user_task(task_id=task_id, user_id=user_id)
 
     async def create_task(self, user_id: int, data: TaskRequest) -> Task:
-        project = await self.db.projects.get_by_id(data.project_id)
-
-        if not project:
-            raise NotFoundError("Проект не найден")
-
-        if data.category_id:
-            category = await self.db.categories.get_by_id(data.category_id)
-            if not category:
-                raise NotFoundError('Категория не найдена')
+        await self.check_project_category_exists(data.project_id, user_id, data.category_id)
 
         task = await self.db.tasks.create({
             **data.model_dump(exclude_unset=True),
@@ -34,10 +26,30 @@ class TaskService(BaseService):
         return task
 
     async def edit_task(self, task_id: int, user_id: int, data: TaskPUT) -> Task:
-        pass
+        await self.check_project_category_exists(data.project_id, user_id, data.category_id)
+        await self.check_task_exists(task_id, user_id)
+
+        task = await self.db.tasks.update({
+            **data.model_dump(exclude_unset=True), 'owner_id': user_id,
+        })
+        await self.db.commit()
+
+        return task
 
     async def update_task(self, task_id: int, user_id: int, data: TaskUpdate) -> Task:
-        pass
+        await self.check_project_category_exists(data.project_id, user_id, data.category_id)
+        await self.check_task_exists(task_id, user_id)
+
+        task = await self.db.tasks.update({
+            **data.model_dump(), 'owner_id': user_id,
+        })
+        await self.db.commit()
+
+        return task
 
     async def delete_task(self, task_id: int, user_id: int) -> None:
-        pass
+        await self.check_task_exists(task_id, user_id)
+        await self.db.tasks.delete(task_id=task_id, user_id=user_id)
+        await self.db.commit()
+
+

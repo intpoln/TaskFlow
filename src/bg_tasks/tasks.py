@@ -1,6 +1,6 @@
 import asyncio
 
-from src.tasks.celery_app import celery_instance
+from src.bg_tasks.celery_app import celery_instance
 
 
 async def log_celery_beat():

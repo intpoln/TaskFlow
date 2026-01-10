@@ -48,10 +48,9 @@ class BaseRepository(Generic[ModelType]):
         result = await self.session.execute(update_stmt)
         return result.scalar_one_or_none()
 
-    async def delete(self, id: int, **filters) -> None:
+    async def delete(self, id: int) -> None:
         delete_stmt = (
             delete(self.model)
-            .where(self.model.id == id)
-            .filter_by(**filters)
+            .filter_by(id=id)
             )
         await self.session.execute(delete_stmt)
