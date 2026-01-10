@@ -15,11 +15,11 @@ from sqladmin import Admin
 sys.path.append(str(Path(__file__).parent.parent))
 
 from src.admin.config import CategoryAdmin, UserAdmin, authentication_backend
-from src.api.auth import router as auth_router
-from src.api.categories import router as category_router
-from src.api.projects import router as project_router
-from src.api.tasks import router as task_router
-from src.api.users import router as users_router
+from src.api.v1.auth import router as auth_router
+from src.api.v1.categories import router as category_router
+from src.api.v1.projects import router as project_router
+from src.api.v1.tasks import router as task_router
+from src.api.v1.users import router as users_router
 from src.database import engine
 from src.init import redis_manager
 

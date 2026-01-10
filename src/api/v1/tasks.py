@@ -8,7 +8,7 @@ from src.api.dependencies import CurrentUserIdDep, DBDep
 from src.models import CategoryOrm, ProjectOrm, TaskOrm
 from src.schemas.tasks import Task, TaskPUT, TaskRequest, TaskUpdate
 
-router = APIRouter(prefix="/tasks", tags=["Tasks"])
+router = APIRouter(prefix="/v1/tasks", tags=["Tasks"])
 
 
 @router.get("", response_model=list[Task])
