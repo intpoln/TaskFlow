@@ -26,7 +26,7 @@ class BaseRepository(Generic[ModelType]):
         return result.scalars().all()
 
     async def get_all(self) -> list[ModelType]:
-        return self.get_filtered()
+        return await self.get_filtered()
 
     async def create(self, data: dict) -> ModelType:
         add_stmt = (

@@ -210,4 +210,4 @@ __marimo__/
 docker-compose.production.yml
 docker-compose.dev.yml
 task.md
-/ROADMAP.md
+.fastapicloud/

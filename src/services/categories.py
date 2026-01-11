@@ -15,8 +15,8 @@ class CategoryService(BaseService):
         await self.db.commit()
         return category
 
-    async def update_category(self, data: CategoryUpdate) -> Category:
-        category = await self.db.categories.update(data)
+    async def update_category(self, category_id: int, data: CategoryUpdate) -> Category:
+        category = await self.db.categories.update(id=category_id, data=data)
         await self.db.commit()
         return category
 
