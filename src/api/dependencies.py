@@ -21,14 +21,18 @@ async def get_db_manager():
 async def get_task_service(db: DBManager = Depends(get_db_manager)) -> TaskService:
     return TaskService(db)
 
+
 async def get_project_service(db: DBManager = Depends(get_db_manager)) -> ProjectService:
     return ProjectService(db)
+
 
 async def get_user_service(db: DBManager = Depends(get_db_manager)) -> UserService:
     return UserService(db)
 
+
 async def get_category_service(db: DBManager = Depends(get_db_manager)) -> CategoryService:
     return CategoryService(db)
+
 
 DBDep = Annotated[AsyncSession, Depends(get_db)]
 DBManagerDep = Annotated[DBManager, Depends(get_db_manager)]

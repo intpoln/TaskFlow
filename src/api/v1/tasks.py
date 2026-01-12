@@ -1,11 +1,8 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 from fastapi.params import Query
 from fastapi_cache.decorator import cache
-from sqlalchemy import delete, insert, or_, select, update
-from sqlalchemy.exc import IntegrityError
 
-from src.api.dependencies import CurrentUserIdDep, DBDep
-from src.models import CategoryOrm, ProjectOrm, TaskOrm
+from src.api.dependencies import CurrentUserIdDep
 from src.schemas.tasks import Task, TaskPUT, TaskRequest, TaskUpdate
 from src.services.tasks import TaskService
 
@@ -15,10 +12,10 @@ router = APIRouter(prefix="/v1/tasks", tags=["Tasks"])
 @router.get("", response_model=list[Task])
 @cache(expire=15)
 async def get_tasks(
-        service: TaskService,
-        user_id: CurrentUserIdDep,
-        search: str | None = Query(None),
-        status: str | None = Query(None)
+    service: TaskService,
+    user_id: CurrentUserIdDep,
+    search: str | None = Query(None),
+    status: str | None = Query(None),
 ):
     return await service.get_tasks(user_id, search, status)
 
@@ -47,7 +44,9 @@ async def edit_task(task_id: int, data: TaskPUT, service: TaskService, user_id: 
 
 
 @router.patch("/{task_id}")
-async def update_task(task_id: int, data: TaskUpdate, service: TaskService, user_id: CurrentUserIdDep):
+async def update_task(
+    task_id: int, data: TaskUpdate, service: TaskService, user_id: CurrentUserIdDep
+):
     # try:
     return await service.update_task(task_id, user_id, data)
     # except IntegrityError:

@@ -1,14 +1,10 @@
-from src.schemas.tasks import Task, TaskRequest, TaskPUT, TaskUpdate
+from src.schemas.tasks import Task, TaskPUT, TaskRequest, TaskUpdate
 from src.services.base import BaseService
 
 
-
 class TaskService(BaseService):
-
     async def get_tasks(
-            self, user_id: int,
-            search: str | None = None,
-            status: str | None = None
+        self, user_id: int, search: str | None = None, status: str | None = None
     ) -> list[Task]:
         return await self.db.tasks.get_user_tasks(user_id=user_id, search=search, status=status)
 
@@ -18,10 +14,12 @@ class TaskService(BaseService):
     async def create_task(self, user_id: int, data: TaskRequest) -> Task:
         await self.check_project_category_exists(data.project_id, user_id, data.category_id)
 
-        task = await self.db.tasks.create({
-            **data.model_dump(exclude_unset=True),
-            "owner_id": user_id,
-        })
+        task = await self.db.tasks.create(
+            {
+                **data.model_dump(exclude_unset=True),
+                "owner_id": user_id,
+            }
+        )
         await self.db.commit()
         return task
 
@@ -29,9 +27,12 @@ class TaskService(BaseService):
         await self.check_project_category_exists(data.project_id, user_id, data.category_id)
         await self.check_task_exists(task_id, user_id)
 
-        task = await self.db.tasks.update({
-            **data.model_dump(exclude_unset=True), 'owner_id': user_id,
-        })
+        task = await self.db.tasks.update(
+            {
+                **data.model_dump(exclude_unset=True),
+                "owner_id": user_id,
+            }
+        )
         await self.db.commit()
 
         return task
@@ -40,9 +41,12 @@ class TaskService(BaseService):
         await self.check_project_category_exists(data.project_id, user_id, data.category_id)
         await self.check_task_exists(task_id, user_id)
 
-        task = await self.db.tasks.update({
-            **data.model_dump(), 'owner_id': user_id,
-        })
+        task = await self.db.tasks.update(
+            {
+                **data.model_dump(),
+                "owner_id": user_id,
+            }
+        )
         await self.db.commit()
 
         return task
@@ -51,5 +55,3 @@ class TaskService(BaseService):
         await self.check_task_exists(task_id, user_id)
         await self.db.tasks.delete(task_id=task_id, user_id=user_id)
         await self.db.commit()
-
-

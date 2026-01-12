@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from fastapi_cache.decorator import cache
 
-from src.api.dependencies import user_is_superuser, UserServiceDep
+from src.api.dependencies import UserServiceDep, user_is_superuser
 from src.schemas.users import User
 
 router = APIRouter(prefix="/users", tags=["Users"])

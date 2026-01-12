@@ -1,6 +1,6 @@
-from typing import TypeVar, Generic, Type
+from typing import Generic, Type, TypeVar
 
-from sqlalchemy import select, insert, update, delete
+from sqlalchemy import delete, insert, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database import Base
@@ -9,7 +9,6 @@ ModelType = TypeVar("ModelType", bound=Base)
 
 
 class BaseRepository(Generic[ModelType]):
-
     model: Type[ModelType] = None
 
     def __init__(self, session: AsyncSession):
@@ -29,11 +28,7 @@ class BaseRepository(Generic[ModelType]):
         return await self.get_filtered()
 
     async def create(self, data: dict) -> ModelType:
-        add_stmt = (
-            insert(self.model)
-            .values(**data)
-            .returning(self.model)
-                )
+        add_stmt = insert(self.model).values(**data).returning(self.model)
         result = await self.session.execute(add_stmt)
         return result.scalar_one()
 
@@ -49,8 +44,5 @@ class BaseRepository(Generic[ModelType]):
         return result.scalar_one_or_none()
 
     async def delete(self, id: int) -> None:
-        delete_stmt = (
-            delete(self.model)
-            .filter_by(id=id)
-            )
+        delete_stmt = delete(self.model).filter_by(id=id)
         await self.session.execute(delete_stmt)

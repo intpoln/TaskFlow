@@ -1,9 +1,9 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database import async_session_maker
+from src.repositories.categories import CategoryRepository
 from src.repositories.projects import ProjectRepository
 from src.repositories.tasks import TaskRepository
-from src.repositories.categories import CategoryRepository
 from src.repositories.users import UserRepository
 
 

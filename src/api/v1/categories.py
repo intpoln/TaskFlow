@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from fastapi_cache.decorator import cache
 
 from src.schemas.categories import Category, CategoryAdd, CategoryUpdate

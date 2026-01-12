@@ -1,6 +1,6 @@
-from sqlalchemy import select, or_
+from sqlalchemy import or_, select
 
-from src.models import TaskOrm, ProjectOrm, CategoryOrm
+from src.models import CategoryOrm, ProjectOrm, TaskOrm
 from src.repositories.base import BaseRepository
 
 
@@ -8,13 +8,9 @@ class TaskRepository(BaseRepository):
     model = TaskOrm
 
     async def get_user_tasks(
-            self,
-            user_id: int,
-            search: str | None = None,
-            status: str | None = None
+        self, user_id: int, search: str | None = None, status: str | None = None
     ) -> list[TaskOrm]:
         query = select(self.model).filter_by(owner_id=user_id)
-
 
         if search:
             pattern = f"%{search}%"
@@ -24,7 +20,7 @@ class TaskRepository(BaseRepository):
                     self.model.title.ilike(pattern),
                     self.model.description.ilike(pattern),
                     ProjectOrm.title.ilike(pattern),
-                    CategoryOrm.title.ilike(pattern)
+                    CategoryOrm.title.ilike(pattern),
                 )
             )
 

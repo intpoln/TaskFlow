@@ -1,12 +1,8 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 from fastapi_cache.decorator import cache
-from sqlalchemy import delete, insert, select, update
-from sqlalchemy.exc import IntegrityError
 
-from src.api.dependencies import CurrentUserIdDep, DBDep
-from src.models import ProjectOrm
+from src.api.dependencies import CurrentUserIdDep
 from src.schemas.projects import Project, ProjectPUT, ProjectRequest, ProjectUpdate
-from src.core.exceptions import NotFoundError
 from src.services.projects import ProjectService
 
 router = APIRouter(prefix="/projects", tags=["Projects"])
@@ -34,13 +30,11 @@ async def get_project(project_id: int, service: ProjectService, user_id: Current
 
 
 @router.put("/{project_id}", response_model=Project)
-async def edit_project(project_id: int, data: ProjectPUT, service: ProjectService, user_id: CurrentUserIdDep):
+async def edit_project(
+    project_id: int, data: ProjectPUT, service: ProjectService, user_id: CurrentUserIdDep
+):
     # try:
-    return await service.edit_project(
-        data=data,
-        user_id=user_id,
-        project_id=project_id
-    )
+    return await service.edit_project(data=data, user_id=user_id, project_id=project_id)
     # except:
 
 
@@ -49,11 +43,7 @@ async def update_project(
     project_id: int, data: ProjectUpdate, service: ProjectService, user_id: CurrentUserIdDep
 ):
     # try:
-    return await service.update_project(
-        data=data,
-        user_id=user_id,
-        project_id=project_id
-    )
+    return await service.update_project(data=data, user_id=user_id, project_id=project_id)
     # except:
 
 

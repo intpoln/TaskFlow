@@ -3,7 +3,6 @@ from src.services.base import BaseService
 
 
 class CategoryService(BaseService):
-
     async def get_categories(self) -> list[Category]:
         return await self.db.categories.get_all()
 
