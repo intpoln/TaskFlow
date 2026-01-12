@@ -10,12 +10,12 @@ class CategoryService(BaseService):
         return await self.db.categories.get_by_id(category_id)
 
     async def create_category(self, data: CategoryAdd) -> Category:
-        category = await self.db.categories.create(data)
+        category = await self.db.categories.create(data.model_dump())
         await self.db.commit()
         return category
 
     async def update_category(self, category_id: int, data: CategoryUpdate) -> Category:
-        category = await self.db.categories.update(id=category_id, data=data)
+        category = await self.db.categories.update(id=category_id, data=data.model_dump())
         await self.db.commit()
         return category
 

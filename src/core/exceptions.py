@@ -1,18 +1,27 @@
 class TaskFlowException(Exception):
-    pass
+    def __init__(self, message: str = "Неизвестная ошибка"):
+        self.message = message
+        super().__init__(message)
+
+    def __str__(self):
+        return self.message
 
 
 class NotFoundError(TaskFlowException):
-    pass
+    def __init__(self, message: str = "Ресурс не найден"):
+        super().__init__(message)
 
 
 class ForbiddenError(TaskFlowException):
-    pass
+    def __init__(self, message: str = "Доступ запрещён"):
+        super().__init__(message)
 
 
-class BadRequestError(TaskFlowException):
-    pass
+class ConflictError(TaskFlowException):
+    def __init__(self, message: str = "Ресурс уже существует"):
+        super().__init__(message)
 
 
 class NotAuthorizedError(TaskFlowException):
-    pass
+    def __init__(self, message: str = "Требуется авторизация"):
+        super().__init__(message)

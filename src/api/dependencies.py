@@ -1,17 +1,17 @@
 from typing import Annotated
 
-from fastapi import Depends
+from fastapi import Depends, Request, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database import get_db
+from src.core.exceptions import NotFoundError, ForbiddenError
 from src.models import UserOrm
 from src.services.auth import AuthService
 from src.services.categories import CategoryService
 from src.services.projects import ProjectService
-from src.services.tasks import TaskService
+from src.services.tasks import TaskServiceDep
 from src.services.users import UserService
 from src.uow.uow import UnitOfWork
-from src.utils.auth import get_current_user, get_current_user_id, user_is_superuser
 
 
 async def get_db_manager():
@@ -19,8 +19,8 @@ async def get_db_manager():
         yield db
 
 
-async def get_task_service(db: UnitOfWork = Depends(get_db_manager)) -> TaskService:
-    return TaskService(db)
+async def get_task_service(db: UnitOfWork = Depends(get_db_manager)) -> TaskServiceDep:
+    return TaskServiceDep(db)
 
 
 async def get_project_service(db: UnitOfWork = Depends(get_db_manager)) -> ProjectService:
@@ -42,12 +42,40 @@ async def get_auth_service(db: UnitOfWork = Depends(get_db_manager)) -> AuthServ
 DBDep = Annotated[AsyncSession, Depends(get_db)]
 DBManagerDep = Annotated[UnitOfWork, Depends(get_db_manager)]
 
-CurrentUserIdDep = Annotated[int, Depends(get_current_user_id)]
-CurrentUserDep = Annotated[UserOrm, Depends(get_current_user)]
-UserIsSuperuserDep = Annotated[bool, Depends(user_is_superuser)]
-
 AuthServiceDep = Annotated[AuthService, Depends(get_auth_service)]
-TaskServiceDep = Annotated[TaskService, Depends(get_task_service)]
+TaskServiceDep = Annotated[TaskServiceDep, Depends(get_task_service)]
 ProjectServiceDep = Annotated[ProjectService, Depends(get_project_service)]
 UserServiceDep = Annotated[UserService, Depends(get_user_service)]
 CategoryServiceDep = Annotated[CategoryService, Depends(get_category_service)]
+
+async def get_current_user(
+        service: AuthServiceDep,
+        request: Request
+):
+    access_token = request.cookies.get("access_token")
+
+    try:
+        return await service.get_user_by_token(access_token)
+    except NotFoundError as e:
+        raise HTTPException(404, str(e))
+
+CurrentUserDep = Annotated[UserOrm | None, Depends(get_current_user)]
+
+async def get_current_user_id(
+        user: CurrentUserDep
+):
+    return user.id
+
+CurrentUserIdDep = Annotated[int, Depends(get_current_user_id)]
+
+async def user_is_superuser(
+        service: AuthServiceDep,
+        user: UserOrm = Depends(get_current_user)
+):
+    try:
+        await service.verify_superuser(user)
+        return True
+    except ForbiddenError as e:
+        raise HTTPException(403, str(e))
+
+UserIsSuperuserDep = Annotated[bool, Depends(user_is_superuser)]

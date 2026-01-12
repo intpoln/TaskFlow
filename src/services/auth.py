@@ -5,7 +5,8 @@ import jwt
 from jwt.exceptions import InvalidTokenError
 
 from src.config import settings
-from src.core.exceptions import ForbiddenError, NotAuthorizedError
+from src.core.exceptions import ForbiddenError, NotAuthorizedError, NotFoundError
+from src.models import UserOrm
 from src.schemas.users import User, UserLogin, UserRegister
 from src.services.base import BaseService
 
@@ -25,8 +26,8 @@ class AuthService(BaseService):
             "refresh_token": refresh_token,
         }
 
-    async def register(self, data: UserRegister) -> User:
-        user = await self.db.users.get_filtered_one(email=data.email, username=data.username)
+    async def register(self, data: UserRegister) -> dict:
+        user = await self.db.users.user_exists(email=data.email, username=data.username)
 
         if user:
             if user.email == data.email:
@@ -34,7 +35,7 @@ class AuthService(BaseService):
             raise ForbiddenError("Пользователь с таким username уже существует")
 
         hashed_password = self.hash_password(data.password)
-        created_user = await self.db.users.create(
+        await self.db.users.create(
             {
                 "email": data.email,
                 "username": data.username,
@@ -42,7 +43,7 @@ class AuthService(BaseService):
             }
         )
         await self.db.commit()
-        return created_user
+        return {"status": True, "message": f"Пользователь {data.username} успешно зарегистрирован!"}
 
     async def create_tokens(self, data: UserLogin, fingerprint: str | None = None) -> dict:
         user = await self.db.users.get_filtered_one(email=data.email)
@@ -124,13 +125,21 @@ class AuthService(BaseService):
     def verify_password(password: str, hashed_password: str) -> bool:
         return bcrypt.checkpw(password.encode("utf-8"), hashed_password.encode("utf-8"))
 
-    @staticmethod
-    def get_token_payload(token: str) -> dict | None:
-        return AuthService.decode_access_token(token)
+    async def get_user_by_token(self, access_token: str) -> UserOrm | None:
+        if not access_token:
+            raise NotAuthorizedError("Токен отсутствует")
 
-    @staticmethod
-    def get_user_id_from_token(token: str) -> int | None:
-        payload = AuthService.decode_access_token(token)
-        if not payload:
-            return None
-        return payload.get("user_id")
+        user_id = self.decode_access_token(access_token).get("user_id")
+        if not user_id:
+            raise NotAuthorizedError("Невалидный токен")
+
+        user = await self.db.users.get_by_id(user_id)
+        if not user:
+            raise NotFoundError("Пользователь не найден")
+
+        return user
+
+    async def verify_superuser(self, user: UserOrm) -> bool:
+        if not user.is_superuser:
+            raise ForbiddenError("Недостаточно прав")
+        return True

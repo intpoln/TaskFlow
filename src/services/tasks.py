@@ -2,7 +2,7 @@ from src.schemas.tasks import Task, TaskPUT, TaskRequest, TaskUpdate
 from src.services.base import BaseService
 
 
-class TaskService(BaseService):
+class TaskServiceDep(BaseService):
     async def get_tasks(
         self, user_id: int, search: str | None = None, status: str | None = None
     ) -> list[Task]:

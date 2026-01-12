@@ -1,9 +1,11 @@
+from typing import Annotated
+
 from fastapi import APIRouter, Header, HTTPException, Request, Response
 
-from src.api.dependencies import CurrentUserDep
+from src.api.dependencies import CurrentUserDep, AuthServiceDep
 from src.config import settings
+from src.core.exceptions import ForbiddenError
 from src.schemas.users import User, UserLogin, UserRegister
-from src.services.auth import AuthService
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -19,14 +21,20 @@ def set_auth_tokens(response: Response, tokens: dict):
 
 
 @router.post("/register")
-async def register(service: AuthService, data: UserRegister):
-    await service.register(data)
-    return {"status": True, "message": f"Пользователь {data.username} успешно зарегистрирован!"}
+async def register(service: AuthServiceDep, data: UserRegister):
+    try:
+        return await service.register(data)
+    except ForbiddenError as e:
+        raise HTTPException(403, e.message)
+
 
 
 @router.post("/login")
 async def login(
-    service: AuthService, data: UserLogin, response: Response, user_agent: str = Header(None)
+        service: AuthServiceDep,
+        data: UserLogin,
+        response: Response,
+        user_agent: Annotated[str | None, Header(include_in_schema=False)] = None
 ):
     tokens = await service.create_tokens(data, fingerprint=user_agent)
     set_auth_tokens(response, tokens)
@@ -47,7 +55,10 @@ async def logout(response: Response):
 
 @router.post("/refresh")
 async def refresh_tokens(
-    service: AuthService, response: Response, request: Request, user_agent: str = Header(None)
+    service: AuthServiceDep,
+        response: Response,
+        request: Request,
+        user_agent: Annotated[str | None, Header(include_in_schema=False)] = None
 ):
     refresh_token = request.cookies.get("refresh_token")
     if not refresh_token:
