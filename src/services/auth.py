@@ -5,9 +5,75 @@ import jwt
 from jwt.exceptions import InvalidTokenError
 
 from src.config import settings
+from src.core.exceptions import ForbiddenError, NotAuthorizedError
+from src.schemas.users import User, UserLogin, UserRegister
+from src.services.base import BaseService
 
 
-class AuthService:
+class AuthService(BaseService):
+    def _generate_tokens(self, user_id: int, fingerprint: str | None = None) -> dict:
+        access_token = self.create_access_token({"user_id": user_id})
+
+        refresh_data = {"user_id": user_id}
+        if fingerprint:
+            refresh_data["fingerprint"] = fingerprint
+
+        refresh_token = self.create_refresh_token(refresh_data)
+
+        return {
+            "access_token": access_token,
+            "refresh_token": refresh_token,
+        }
+
+    async def register(self, data: UserRegister) -> User:
+        user = await self.db.users.get_filtered_one(email=data.email, username=data.username)
+
+        if user:
+            if user.email == data.email:
+                raise ForbiddenError("Пользователь с таким email уже существует")
+            raise ForbiddenError("Пользователь с таким username уже существует")
+
+        hashed_password = self.hash_password(data.password)
+        created_user = await self.db.users.create(
+            {
+                "email": data.email,
+                "username": data.username,
+                "hashed_password": hashed_password,
+            }
+        )
+        await self.db.commit()
+        return created_user
+
+    async def create_tokens(self, data: UserLogin, fingerprint: str | None = None) -> dict:
+        user = await self.db.users.get_filtered_one(email=data.email)
+
+        if not user or not self.verify_password(data.password, user.hashed_password):
+            raise NotAuthorizedError("Неверный email или пароль")
+
+        return self._generate_tokens(user.id, fingerprint)
+
+    async def refresh(self, refresh_token: str | None, fingerprint: str | None = None) -> dict:
+        payload = self.decode_refresh_token(refresh_token)
+        if not payload:
+            raise NotAuthorizedError("Refresh токен истёк, авторизуйтесь заново")
+
+        token_fingerprint = payload.get("fingerprint")
+        if token_fingerprint and token_fingerprint != fingerprint:
+            raise NotAuthorizedError("Подозрительная активность, авторизуйтесь заново")
+
+        user_id = payload.get("user_id")
+        user = await self.db.users.get_by_id(user_id)
+        if not user:
+            raise NotAuthorizedError("Пользователь не найден")
+
+        return self._generate_tokens(user.id, fingerprint)
+
+    async def get_current_user(self, user_id) -> User:
+        user = await self.db.users.get_by_id(user_id)
+        if not user:
+            raise NotAuthorizedError("Пользователь не найден")
+        return user
+
     @staticmethod
     def create_access_token(data: dict) -> str:
         to_encode = data.copy()

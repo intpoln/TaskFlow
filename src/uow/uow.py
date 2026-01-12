@@ -7,7 +7,7 @@ from src.repositories.tasks import TaskRepository
 from src.repositories.users import UserRepository
 
 
-class DBManager:
+class UnitOfWork:
     def __init__(self):
         self.session_factory = async_session_maker
 

@@ -24,6 +24,11 @@ class BaseRepository(Generic[ModelType]):
         result = await self.session.execute(query)
         return result.scalars().all()
 
+    async def get_filtered_one(self, **filters) -> ModelType | None:
+        query = select(self.model).filter_by(**filters)
+        result = await self.session.execute(query)
+        return result.scalar_one_or_none()
+
     async def get_all(self) -> list[ModelType]:
         return await self.get_filtered()
 

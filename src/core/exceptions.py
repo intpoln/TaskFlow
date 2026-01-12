@@ -12,3 +12,7 @@ class ForbiddenError(TaskFlowException):
 
 class BadRequestError(TaskFlowException):
     pass
+
+
+class NotAuthorizedError(TaskFlowException):
+    pass

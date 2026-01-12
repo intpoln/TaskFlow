@@ -1,11 +1,12 @@
+
 from src.core.exceptions import NotFoundError
-from src.utils.db_manager import DBManager
+from src.uow.uow import UnitOfWork
 
 
 class BaseService:
-    db: DBManager
+    db: UnitOfWork
 
-    def __init__(self, db: DBManager):
+    def __init__(self, db: UnitOfWork):
         self.db = db
 
     async def check_project_exists(self, project_id: int, user_id: int) -> bool:
