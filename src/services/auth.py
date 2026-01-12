@@ -6,7 +6,6 @@ from jwt.exceptions import InvalidTokenError
 
 from src.config import settings
 from src.core.exceptions import ForbiddenError, NotAuthorizedError, NotFoundError
-from src.models import UserOrm
 from src.schemas.users import User, UserLogin, UserRegister
 from src.services.base import BaseService
 
@@ -125,7 +124,7 @@ class AuthService(BaseService):
     def verify_password(password: str, hashed_password: str) -> bool:
         return bcrypt.checkpw(password.encode("utf-8"), hashed_password.encode("utf-8"))
 
-    async def get_user_by_token(self, access_token: str) -> UserOrm | None:
+    async def get_user_by_token(self, access_token: str) -> User | None:
         if not access_token:
             raise NotAuthorizedError("Токен отсутствует")
 
@@ -139,7 +138,7 @@ class AuthService(BaseService):
 
         return user
 
-    async def verify_superuser(self, user: UserOrm) -> bool:
+    async def verify_superuser(self, user: User) -> bool:
         if not user.is_superuser:
             raise ForbiddenError("Недостаточно прав")
         return True

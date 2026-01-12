@@ -1,4 +1,3 @@
-
 from src.core.exceptions import NotFoundError
 from src.uow.uow import UnitOfWork
 
