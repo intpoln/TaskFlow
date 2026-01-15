@@ -10,7 +10,7 @@ from src.api.dependencies import CategoryServiceDep, get_current_user, user_is_s
 from src.core.exceptions import ConflictError, NotFoundError
 from src.schemas.categories import Category, CategoryAdd, CategoryUpdate
 
-router = APIRouter(prefix="/categories", tags=["Categories"])
+router = APIRouter(prefix="/categories", tags=["Категории"])
 
 
 @router.get(

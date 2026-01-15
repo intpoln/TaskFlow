@@ -13,7 +13,7 @@ from src.config import settings
 from src.core.exceptions import ConflictError, ForbiddenError, NotAuthorizedError
 from src.schemas.users import User, UserLogin, UserRegister
 
-router = APIRouter(prefix="/auth", tags=["auth"])
+router = APIRouter(prefix="/auth", tags=["Аутентификация"])
 
 
 def set_auth_tokens(response: Response, tokens: dict):

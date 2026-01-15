@@ -10,7 +10,7 @@ from src.api.dependencies import CurrentUserIdDep, ProjectServiceDep
 from src.core.exceptions import ConflictError, NotFoundError
 from src.schemas.projects import Project, ProjectPUT, ProjectRequest, ProjectUpdate
 
-router = APIRouter(prefix="/projects", tags=["Projects"])
+router = APIRouter(prefix="/projects", tags=["Проекты"])
 
 
 @router.get("", response_model=list[Project], summary="Получение всех категорий")

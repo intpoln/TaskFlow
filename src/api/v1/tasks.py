@@ -11,7 +11,7 @@ from src.api.dependencies import CurrentUserIdDep, TaskServiceDep
 from src.core.exceptions import ConflictError, NotFoundError
 from src.schemas.tasks import Task, TaskPUT, TaskRequest, TaskUpdate
 
-router = APIRouter(prefix="/v1/tasks", tags=["Tasks"])
+router = APIRouter(prefix="/v1/tasks", tags=["Таски"])
 
 
 @router.get("", response_model=list[Task], summary="Получение задач, удовлетворяющих поиску")
