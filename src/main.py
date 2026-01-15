@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 
 import uvicorn
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.docs import get_swagger_ui_html
 from fastapi.responses import RedirectResponse
@@ -12,7 +12,6 @@ from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
 from sqladmin import Admin
 from starlette.middleware.sessions import SessionMiddleware
-from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
 
 sys.path.append(str(Path(__file__).parent.parent))
 
@@ -38,8 +37,7 @@ async def lifespan(app: FastAPI):
 logging.basicConfig(level=logging.INFO)
 app = FastAPI(docs_url=None, lifespan=lifespan)
 
-# app.add_middleware(SessionMiddleware, secret_key=settings.JWT_SECRET_KEY)
-app.add_middleware(ProxyHeadersMiddleware, trusted_hosts="127.0.0.1")
+app.add_middleware(SessionMiddleware, secret_key=settings.JWT_SECRET_KEY, https_only=True)
 
 admin = Admin(app, engine, authentication_backend=authentication_backend)
 admin.add_view(UserAdmin)
@@ -74,6 +72,15 @@ async def custom_swagger_ui_html():
 @app.get("/", include_in_schema=False)
 async def root():
     return RedirectResponse(url="/docs")
+
+@app.get("/debug")
+def debug(request: Request):
+    return {
+        "url": str(request.url),
+        "base_url": str(request.base_url),
+        "scheme": request.url.scheme,
+        "headers": dict(request.headers),
+    }
 
 
 if __name__ == "__main__":
