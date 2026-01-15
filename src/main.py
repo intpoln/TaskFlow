@@ -38,7 +38,7 @@ async def lifespan(app: FastAPI):
 logging.basicConfig(level=logging.INFO)
 app = FastAPI(docs_url=None, lifespan=lifespan)
 
-app.add_middleware(SessionMiddleware, secret_key=settings.JWT_SECRET_KEY)
+# app.add_middleware(SessionMiddleware, secret_key=settings.JWT_SECRET_KEY)
 app.add_middleware(ProxyHeadersMiddleware, trusted_hosts="127.0.0.1")
 
 admin = Admin(app, engine, authentication_backend=authentication_backend)
