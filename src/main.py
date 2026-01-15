@@ -11,6 +11,7 @@ from fastapi.responses import RedirectResponse
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
 from sqladmin import Admin
+from starlette.middleware.sessions import SessionMiddleware
 
 sys.path.append(str(Path(__file__).parent.parent))
 
@@ -20,6 +21,7 @@ from src.api.v1.categories import router as category_router
 from src.api.v1.projects import router as project_router
 from src.api.v1.tasks import router as task_router
 from src.api.v1.users import router as users_router
+from src.config import settings
 from src.database import engine
 from src.init import redis_manager
 
@@ -34,6 +36,9 @@ async def lifespan(app: FastAPI):
 
 logging.basicConfig(level=logging.INFO)
 app = FastAPI(docs_url=None, lifespan=lifespan)
+
+app.add_middleware(SessionMiddleware, secret_key=settings.JWT_SECRET_KEY)
+
 admin = Admin(app, engine, authentication_backend=authentication_backend)
 admin.add_view(UserAdmin)
 admin.add_view(CategoryAdmin)
