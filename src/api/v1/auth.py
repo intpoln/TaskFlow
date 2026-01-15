@@ -32,7 +32,7 @@ def set_auth_tokens(response: Response, tokens: dict):
     )
 
 
-@router.post("/register")
+@router.post("/register", summary="Регистрация пользователя")
 async def register(service: AuthServiceDep, data: UserRegister):
     """Регистрирует нового пользователя.
 
@@ -52,7 +52,7 @@ async def register(service: AuthServiceDep, data: UserRegister):
         raise HTTPException(409, e.message)
 
 
-@router.post("/login")
+@router.post("/login", summary="Аутентификация пользователя")
 async def login(
     service: AuthServiceDep,
     data: UserLogin,
@@ -81,7 +81,7 @@ async def login(
         raise HTTPException(401, e.message)
 
 
-@router.get("/me", response_model=User)
+@router.get("/me", response_model=User, summary="Получение данных пользователя")
 async def me(user: CurrentUserDep):
     """Возвращает данные текущего пользователя.
 
@@ -94,7 +94,7 @@ async def me(user: CurrentUserDep):
     return user
 
 
-@router.post("/logout")
+@router.post("/logout", summary="Выйти из аккаунта")
 async def logout(response: Response):
     """Выходит из системы, удаляя токены.
 
@@ -109,7 +109,7 @@ async def logout(response: Response):
     return {"status": True, "message": "Вы успешно вышли"}
 
 
-@router.post("/refresh")
+@router.post("/refresh", summary="Обновление токенов")
 async def refresh_tokens(
     service: AuthServiceDep,
     response: Response,

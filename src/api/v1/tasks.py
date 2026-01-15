@@ -14,7 +14,7 @@ from src.schemas.tasks import Task, TaskPUT, TaskRequest, TaskUpdate
 router = APIRouter(prefix="/v1/tasks", tags=["Tasks"])
 
 
-@router.get("", response_model=list[Task])
+@router.get("", response_model=list[Task], summary="Получение задач, удовлетворяющих поиску")
 @cache(expire=15)
 async def get_tasks(
     service: TaskServiceDep,
@@ -40,7 +40,7 @@ async def get_tasks(
     return await service.get_tasks(user_id, search, status)
 
 
-@router.post("", response_model=Task)
+@router.post("", response_model=Task, summary="Создание задачи")
 async def create_task(service: TaskServiceDep, user_id: CurrentUserIdDep, data: TaskRequest):
     """Создает новую задачу.
 
@@ -66,7 +66,7 @@ async def create_task(service: TaskServiceDep, user_id: CurrentUserIdDep, data: 
         raise HTTPException(404, e.message)
 
 
-@router.get("/{task_id}", response_model=Task)
+@router.get("/{task_id}", response_model=Task, summary="Получение определенной задачи")
 @cache(expire=15)
 async def get_task(task_id: int, service: TaskServiceDep, user_id: CurrentUserIdDep):
     """Получает задачу по ID.
@@ -88,7 +88,7 @@ async def get_task(task_id: int, service: TaskServiceDep, user_id: CurrentUserId
         raise HTTPException(404, e.message)
 
 
-@router.put("/{task_id}", response_model=Task)
+@router.put("/{task_id}", response_model=Task, summary="Полная замена данных задачи")
 async def edit_task(
     task_id: int, data: TaskPUT, service: TaskServiceDep, user_id: CurrentUserIdDep
 ):
@@ -115,7 +115,7 @@ async def edit_task(
         raise HTTPException(409, e.message)
 
 
-@router.patch("/{task_id}", response_model=Task)
+@router.patch("/{task_id}", response_model=Task, summary="Частичное обновление данных задачи")
 async def update_task(
     task_id: int, data: TaskUpdate, service: TaskServiceDep, user_id: CurrentUserIdDep
 ):
@@ -142,7 +142,7 @@ async def update_task(
         raise HTTPException(409, e.message)
 
 
-@router.delete("/{task_id}")
+@router.delete("/{task_id}", summary="Удаление задачи")
 async def delete_task(task_id: int, service: TaskServiceDep, user_id: CurrentUserIdDep):
     """Удаляет задачу.
 

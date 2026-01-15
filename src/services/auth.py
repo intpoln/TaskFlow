@@ -23,6 +23,7 @@ class AuthService(BaseService):
     - Создания и обновления JWT токенов
     - Проверки прав доступа
     """
+
     def _generate_tokens(self, user_id: int, fingerprint: str | None = None) -> dict:
         """Генерирует пару access и refresh токенов.
 

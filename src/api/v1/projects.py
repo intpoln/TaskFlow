@@ -13,7 +13,7 @@ from src.schemas.projects import Project, ProjectPUT, ProjectRequest, ProjectUpd
 router = APIRouter(prefix="/projects", tags=["Projects"])
 
 
-@router.get("", response_model=list[Project])
+@router.get("", response_model=list[Project], summary="Получение всех категорий")
 @cache(expire=15)
 async def get_projects(service: ProjectServiceDep, user_id: CurrentUserIdDep):
     """Получает список проектов текущего пользователя.
@@ -30,7 +30,7 @@ async def get_projects(service: ProjectServiceDep, user_id: CurrentUserIdDep):
     return await service.get_projects(user_id)
 
 
-@router.post("", response_model=Project)
+@router.post("", response_model=Project, summary="Создание проекта")
 async def create_project(
     service: ProjectServiceDep, data: ProjectRequest, user_id: CurrentUserIdDep
 ):
@@ -53,7 +53,7 @@ async def create_project(
         raise HTTPException(409, e.message)
 
 
-@router.get("/{project_id}", response_model=Project)
+@router.get("/{project_id}", response_model=Project, summary="Получение определенного проекта")
 @cache(expire=15)
 async def get_project(project_id: int, service: ProjectServiceDep, user_id: CurrentUserIdDep):
     """Получает проект по ID.
@@ -75,7 +75,7 @@ async def get_project(project_id: int, service: ProjectServiceDep, user_id: Curr
         raise HTTPException(404, e.message)
 
 
-@router.put("/{project_id}", response_model=Project)
+@router.put("/{project_id}", response_model=Project, summary="Полное обновление проекта")
 async def edit_project(
     project_id: int, data: ProjectPUT, service: ProjectServiceDep, user_id: CurrentUserIdDep
 ):
@@ -102,7 +102,7 @@ async def edit_project(
         raise HTTPException(409, e.message)
 
 
-@router.patch("/{project_id}", response_model=Project)
+@router.patch("/{project_id}", response_model=Project, summary="Частичное обновление проекта")
 async def update_project(
     project_id: int, data: ProjectUpdate, service: ProjectServiceDep, user_id: CurrentUserIdDep
 ):
@@ -129,7 +129,7 @@ async def update_project(
         raise HTTPException(409, e.message)
 
 
-@router.delete("/{project_id}")
+@router.delete("/{project_id}", summary="Удаление проекта")
 async def delete_project(project_id: int, service: ProjectServiceDep, user_id: CurrentUserIdDep):
     """Удаляет проект.
 

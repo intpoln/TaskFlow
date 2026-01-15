@@ -13,7 +13,12 @@ from src.schemas.categories import Category, CategoryAdd, CategoryUpdate
 router = APIRouter(prefix="/categories", tags=["Categories"])
 
 
-@router.get("", response_model=list[Category], dependencies=[Depends(get_current_user)])
+@router.get(
+    "",
+    response_model=list[Category],
+    dependencies=[Depends(get_current_user)],
+    summary="Получение всех категорий",
+)
 @cache(expire=15)
 async def get_categories(service: CategoryServiceDep):
     """Получает список всех категорий.
@@ -30,7 +35,12 @@ async def get_categories(service: CategoryServiceDep):
     return await service.get_categories()
 
 
-@router.post("", response_model=Category, dependencies=[Depends(user_is_superuser)])
+@router.post(
+    "",
+    response_model=Category,
+    dependencies=[Depends(user_is_superuser)],
+    summary="Создание категории (только суперюзер)",
+)
 async def create_category(service: CategoryServiceDep, data: CategoryAdd):
     """Создает новую категорию.
 
@@ -52,7 +62,11 @@ async def create_category(service: CategoryServiceDep, data: CategoryAdd):
         raise HTTPException(409, e.message)
 
 
-@router.get("/{category_id}", dependencies=[Depends(get_current_user)])
+@router.get(
+    "/{category_id}",
+    dependencies=[Depends(get_current_user)],
+    summary="Получение отдельной категории",
+)
 async def get_category(service: CategoryServiceDep, category_id: int):
     """Получает категорию по ID.
 
@@ -72,7 +86,11 @@ async def get_category(service: CategoryServiceDep, category_id: int):
         raise HTTPException(404, f"Категория с id {category_id} не найдена")
 
 
-@router.patch("/{category_id}", dependencies=[Depends(user_is_superuser)])
+@router.patch(
+    "/{category_id}",
+    dependencies=[Depends(user_is_superuser)],
+    summary="Обновление отдельной категории",
+)
 async def update_category(service: CategoryServiceDep, category_id: int, data: CategoryUpdate):
     """Обновляет категорию.
 
@@ -98,7 +116,9 @@ async def update_category(service: CategoryServiceDep, category_id: int, data: C
         raise HTTPException(409, e.message)
 
 
-@router.delete("/{category_id}", dependencies=[Depends(user_is_superuser)])
+@router.delete(
+    "/{category_id}", dependencies=[Depends(user_is_superuser)], summary="Удаление категории"
+)
 async def delete_category(service: CategoryServiceDep, category_id: int):
     """Удаляет категорию.
 

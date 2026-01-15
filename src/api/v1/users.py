@@ -12,7 +12,12 @@ from src.schemas.users import User
 router = APIRouter(prefix="/users", tags=["Users"])
 
 
-@router.get("", response_model=list[User], dependencies=[Depends(user_is_superuser)])
+@router.get(
+    "",
+    response_model=list[User],
+    dependencies=[Depends(user_is_superuser)],
+    summary="Получение списка всех пользователей (только суперюзер)",
+)
 @cache(expire=15)
 async def get_users(service: UserServiceDep):
     """Получает список всех пользователей.
