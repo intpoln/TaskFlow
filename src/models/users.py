@@ -1,3 +1,8 @@
+"""ORM модель пользователя.
+
+Содержит модель UserOrm для хранения данных пользователей.
+"""
+
 from datetime import datetime
 
 from sqlalchemy import DateTime, String
@@ -8,6 +13,22 @@ from src.database import Base
 
 
 class UserOrm(Base):
+    """Модель пользователя в базе данных.
+
+    Хранит данные аккаунта: email, логин, пароль (хеш),
+    а также опциональную интеграцию с Telegram.
+
+    Attributes:
+        id: Уникальный идентификатор пользователя.
+        email: Email адрес (уникальный).
+        hashed_password: Хеш пароля (bcrypt).
+        username: Логин пользователя (уникальный).
+        created_at: Дата и время регистрации.
+        telegram_id: ID пользователя в Telegram (опционально).
+        telegram_username: Username в Telegram (опционально).
+        is_superuser: Флаг суперпользователя (админ).
+    """
+
     __tablename__ = "users"
 
     id: Mapped[int] = mapped_column(primary_key=True)

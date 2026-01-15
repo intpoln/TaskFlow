@@ -1,3 +1,9 @@
+"""API эндпоинты аутентификации.
+
+Содержит эндпоинты для регистрации, авторизации,
+выхода и обновления токенов.
+"""
+
 from typing import Annotated
 
 from fastapi import APIRouter, Header, HTTPException, Request, Response
@@ -11,6 +17,12 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 
 
 def set_auth_tokens(response: Response, tokens: dict):
+    """Устанавливает токены в cookies ответа.
+
+    Args:
+        response: HTTP ответ FastAPI.
+        tokens: Словарь с access_token и refresh_token.
+    """
     response.set_cookie(key="access_token", value=tokens["access_token"])
     response.set_cookie(
         key="refresh_token",
@@ -22,6 +34,18 @@ def set_auth_tokens(response: Response, tokens: dict):
 
 @router.post("/register")
 async def register(service: AuthServiceDep, data: UserRegister):
+    """Регистрирует нового пользователя.
+
+    Args:
+        service: Сервис аутентификации.
+        data: Данные для регистрации (email, password, username).
+
+    Returns:
+        Результат регистрации с сообщением.
+
+    Raises:
+        HTTPException 409: Email или username уже заняты.
+    """
     try:
         return await service.register(data)
     except ConflictError as e:
@@ -35,6 +59,20 @@ async def login(
     response: Response,
     user_agent: Annotated[str | None, Header(include_in_schema=False)] = None,
 ):
+    """Авторизует пользователя и устанавливает токены.
+
+    Args:
+        service: Сервис аутентификации.
+        data: Данные для входа (email, password).
+        response: HTTP ответ для установки cookies.
+        user_agent: User-Agent браузера для fingerprint.
+
+    Returns:
+        Результат авторизации.
+
+    Raises:
+        HTTPException 401: Неверный email или пароль.
+    """
     try:
         tokens = await service.create_tokens(data, fingerprint=user_agent)
         set_auth_tokens(response, tokens)
@@ -45,11 +83,27 @@ async def login(
 
 @router.get("/me", response_model=User)
 async def me(user: CurrentUserDep):
+    """Возвращает данные текущего пользователя.
+
+    Args:
+        user: Текущий авторизованный пользователь.
+
+    Returns:
+        Данные пользователя.
+    """
     return user
 
 
 @router.post("/logout")
 async def logout(response: Response):
+    """Выходит из системы, удаляя токены.
+
+    Args:
+        response: HTTP ответ для удаления cookies.
+
+    Returns:
+        Результат выхода.
+    """
     response.delete_cookie(key="access_token")
     response.delete_cookie(key="refresh_token")
     return {"status": True, "message": "Вы успешно вышли"}
@@ -62,6 +116,23 @@ async def refresh_tokens(
     request: Request,
     user_agent: Annotated[str | None, Header(include_in_schema=False)] = None,
 ):
+    """Обновляет токены по refresh токену.
+
+    Реализует token rotation - при каждом обновлении
+    выдаётся новая пара токенов.
+
+    Args:
+        service: Сервис аутентификации.
+        response: HTTP ответ для установки новых cookies.
+        request: HTTP запрос для получения refresh токена.
+        user_agent: User-Agent для верификации fingerprint.
+
+    Returns:
+        Результат обновления токенов.
+
+    Raises:
+        HTTPException 401: Refresh токен отсутствует, истёк или невалиден.
+    """
     refresh_token = request.cookies.get("refresh_token")
     if not refresh_token:
         raise HTTPException(401, "Refresh токен отсутствует")

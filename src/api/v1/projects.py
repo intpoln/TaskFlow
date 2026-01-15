@@ -1,3 +1,8 @@
+"""API эндпоинты для проектов.
+
+Содержит CRUD эндпоинты для управления проектами пользователя.
+"""
+
 from fastapi import APIRouter, HTTPException
 from fastapi_cache.decorator import cache
 
@@ -11,6 +16,17 @@ router = APIRouter(prefix="/projects", tags=["Projects"])
 @router.get("", response_model=list[Project])
 @cache(expire=15)
 async def get_projects(service: ProjectServiceDep, user_id: CurrentUserIdDep):
+    """Получает список проектов текущего пользователя.
+
+    Результат кэшируется на 15 секунд.
+
+    Args:
+        service: Сервис проектов.
+        user_id: ID текущего пользователя.
+
+    Returns:
+        Список проектов пользователя.
+    """
     return await service.get_projects(user_id)
 
 
@@ -18,6 +34,19 @@ async def get_projects(service: ProjectServiceDep, user_id: CurrentUserIdDep):
 async def create_project(
     service: ProjectServiceDep, data: ProjectRequest, user_id: CurrentUserIdDep
 ):
+    """Создает новый проект.
+
+    Args:
+        service: Сервис проектов.
+        data: Данные для создания проекта.
+        user_id: ID текущего пользователя.
+
+    Returns:
+        Созданный проект.
+
+    Raises:
+        HTTPException 409: Проект с таким названием уже существует.
+    """
     try:
         return await service.create_project(data=data, user_id=user_id)
     except ConflictError as e:
@@ -27,6 +56,19 @@ async def create_project(
 @router.get("/{project_id}", response_model=Project)
 @cache(expire=15)
 async def get_project(project_id: int, service: ProjectServiceDep, user_id: CurrentUserIdDep):
+    """Получает проект по ID.
+
+    Args:
+        project_id: ID проекта.
+        service: Сервис проектов.
+        user_id: ID текущего пользователя.
+
+    Returns:
+        Найденный проект.
+
+    Raises:
+        HTTPException 404: Проект не найден.
+    """
     try:
         return await service.get_project(project_id, user_id)
     except NotFoundError as e:
@@ -37,6 +79,21 @@ async def get_project(project_id: int, service: ProjectServiceDep, user_id: Curr
 async def edit_project(
     project_id: int, data: ProjectPUT, service: ProjectServiceDep, user_id: CurrentUserIdDep
 ):
+    """Полностью обновляет проект (PUT).
+
+    Args:
+        project_id: ID проекта.
+        data: Полные новые данные проекта.
+        service: Сервис проектов.
+        user_id: ID текущего пользователя.
+
+    Returns:
+        Обновленный проект.
+
+    Raises:
+        HTTPException 404: Проект не найден.
+        HTTPException 409: Проект с таким названием уже существует.
+    """
     try:
         return await service.edit_project(data=data, user_id=user_id, project_id=project_id)
     except NotFoundError as e:
@@ -49,6 +106,21 @@ async def edit_project(
 async def update_project(
     project_id: int, data: ProjectUpdate, service: ProjectServiceDep, user_id: CurrentUserIdDep
 ):
+    """Частично обновляет проект (PATCH).
+
+    Args:
+        project_id: ID проекта.
+        data: Частичные данные для обновления.
+        service: Сервис проектов.
+        user_id: ID текущего пользователя.
+
+    Returns:
+        Обновленный проект.
+
+    Raises:
+        HTTPException 404: Проект не найден.
+        HTTPException 409: Проект с таким названием уже существует.
+    """
     try:
         return await service.update_project(data=data, user_id=user_id, project_id=project_id)
     except NotFoundError as e:
@@ -59,6 +131,21 @@ async def update_project(
 
 @router.delete("/{project_id}")
 async def delete_project(project_id: int, service: ProjectServiceDep, user_id: CurrentUserIdDep):
+    """Удаляет проект.
+
+    Все задачи проекта будут удалены каскадно.
+
+    Args:
+        project_id: ID проекта.
+        service: Сервис проектов.
+        user_id: ID текущего пользователя.
+
+    Returns:
+        Результат удаления.
+
+    Raises:
+        HTTPException 404: Проект не найден.
+    """
     try:
         await service.delete_project(project_id, user_id)
         return {"status": True}

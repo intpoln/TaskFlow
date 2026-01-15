@@ -1,3 +1,8 @@
+"""API эндпоинты для категорий задач.
+
+Содержит CRUD эндпоинты для управления категориями.
+"""
+
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi_cache.decorator import cache
 
@@ -11,11 +16,36 @@ router = APIRouter(prefix="/categories", tags=["Categories"])
 @router.get("", response_model=list[Category], dependencies=[Depends(get_current_user)])
 @cache(expire=15)
 async def get_categories(service: CategoryServiceDep):
+    """Получает список всех категорий.
+
+    Доступно авторизованным пользователям.
+    Результат кэшируется на 15 секунд.
+
+    Args:
+        service: Сервис категорий.
+
+    Returns:
+        Список всех категорий.
+    """
     return await service.get_categories()
 
 
 @router.post("", response_model=Category, dependencies=[Depends(user_is_superuser)])
 async def create_category(service: CategoryServiceDep, data: CategoryAdd):
+    """Создает новую категорию.
+
+    Доступно только суперпользователям.
+
+    Args:
+        service: Сервис категорий.
+        data: Данные для создания категории.
+
+    Returns:
+        Созданная категория.
+
+    Raises:
+        HTTPException 409: Категория с таким названием уже существует.
+    """
     try:
         return await service.create_category(data)
     except ConflictError as e:
@@ -24,6 +54,18 @@ async def create_category(service: CategoryServiceDep, data: CategoryAdd):
 
 @router.get("/{category_id}", dependencies=[Depends(get_current_user)])
 async def get_category(service: CategoryServiceDep, category_id: int):
+    """Получает категорию по ID.
+
+    Args:
+        service: Сервис категорий.
+        category_id: ID категории.
+
+    Returns:
+        Найденная категория.
+
+    Raises:
+        HTTPException 404: Категория не найдена.
+    """
     try:
         return await service.get_category(category_id)
     except NotFoundError:
@@ -32,6 +74,22 @@ async def get_category(service: CategoryServiceDep, category_id: int):
 
 @router.patch("/{category_id}", dependencies=[Depends(user_is_superuser)])
 async def update_category(service: CategoryServiceDep, category_id: int, data: CategoryUpdate):
+    """Обновляет категорию.
+
+    Доступно только суперпользователям.
+
+    Args:
+        service: Сервис категорий.
+        category_id: ID категории.
+        data: Новые данные категории.
+
+    Returns:
+        Обновленная категория.
+
+    Raises:
+        HTTPException 404: Категория не найдена.
+        HTTPException 409: Категория с таким названием уже существует.
+    """
     try:
         return await service.update_category(category_id, data)
     except NotFoundError:
@@ -42,6 +100,20 @@ async def update_category(service: CategoryServiceDep, category_id: int, data: C
 
 @router.delete("/{category_id}", dependencies=[Depends(user_is_superuser)])
 async def delete_category(service: CategoryServiceDep, category_id: int):
+    """Удаляет категорию.
+
+    Доступно только суперпользователям.
+
+    Args:
+        service: Сервис категорий.
+        category_id: ID категории.
+
+    Returns:
+        Результат удаления.
+
+    Raises:
+        HTTPException 404: Категория не найдена.
+    """
     try:
         await service.delete_category(category_id)
         return {"status": True}
