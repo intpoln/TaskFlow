@@ -1,24 +1,12 @@
 stages:
-  - build
   - deploy
 
-build-job:
-  stage: build
-  before_script:
-    - cp ${ENV} .env
-  script:
-    - docker build -t intpoln/taskflow .
-  only:
-    - main
-
-deploy-job:  
+deploy-job:
   stage: deploy
   before_script:
     - cp ${ENV} .env
   script:
     - docker compose down
-    - docker compose up -d
+    - docker compose up -d --build
   only:
     - main
-  needs:
-    - build-job

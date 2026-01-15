@@ -44,7 +44,7 @@ services:
     container_name: back
     networks:
       - taskflow_network
-    image: intpoln/taskflow:latest
+    build: .
     mem_limit: 128m
     ports:
       - '8000:8000'
