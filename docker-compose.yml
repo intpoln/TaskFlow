@@ -58,7 +58,7 @@ services:
     command: >
       bash -c "alembic upgrade head &&
       python -m src.scripts.create_superuser &&
-      gunicorn src.main:app -w 1 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000 --proxy-headers --forwarded-allow-ips='*'"
+      gunicorn src.main:app -w 1 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000 --forwarded-allow-ips='*'"
 
 
 #  taskflow_celery_service:
