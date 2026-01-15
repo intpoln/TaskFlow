@@ -146,7 +146,7 @@ class AuthService(BaseService):
             minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
         )
         to_encode |= {"exp": expire, "type": "access"}
-        return jwt.encode(to_encode, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITM)
+        return jwt.encode(to_encode, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
 
     @staticmethod
     def decode_access_token(token: str) -> dict | None:
@@ -159,7 +159,7 @@ class AuthService(BaseService):
             Payload токена или None при ошибке.
         """
         try:
-            payload = jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITM])
+            payload = jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM])
             if payload.get("type") != "access":
                 return None
             return payload
@@ -180,7 +180,7 @@ class AuthService(BaseService):
         expire = datetime.now(timezone.utc) + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
         to_encode |= {"exp": expire, "type": "refresh"}
         return jwt.encode(
-            to_encode, settings.JWT_REFRESH_SECRET_KEY, algorithm=settings.JWT_ALGORITM
+            to_encode, settings.JWT_REFRESH_SECRET_KEY, algorithm=settings.JWT_ALGORITHM
         )
 
     @staticmethod
@@ -195,7 +195,7 @@ class AuthService(BaseService):
         """
         try:
             payload = jwt.decode(
-                token, settings.JWT_REFRESH_SECRET_KEY, algorithms=[settings.JWT_ALGORITM]
+                token, settings.JWT_REFRESH_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM]
             )
             if payload.get("type") != "refresh":
                 return None

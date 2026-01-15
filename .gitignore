@@ -207,7 +207,6 @@ marimo/_lsp/
 __marimo__/
 
 /postgres/
-docker-compose.production.yml
 docker-compose.dev.yml
 task.md
 .fastapicloud/

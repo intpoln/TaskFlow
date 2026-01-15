@@ -10,6 +10,7 @@ dependencies = [
     "celery>=5.6.1",
     "fastapi-cache2>=0.2.2",
     "fastapi[standard]==0.128.0",
+    "gunicorn>=23.0.0",
     "itsdangerous>=2.2.0",
     "passlib[bcrypt]>=1.7.4",
     "pydantic-settings>=2.12.0",
@@ -20,6 +21,7 @@ dependencies = [
     "ruff>=0.14.10",
     "sqladmin>=0.22.0",
     "sqlalchemy>=2.0.45",
+    "uvicorn[standart]>=0.40.0",
 ]
 [tool.ruff]
 line-length = 100
