@@ -4,6 +4,8 @@ stages:
 
 build-job:
   stage: build
+  before_script:
+    - cp ${ENV} .env
   script:
     - docker build -t intpoln/taskflow .
   only:
