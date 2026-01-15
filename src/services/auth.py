@@ -5,7 +5,7 @@ import jwt
 from jwt.exceptions import InvalidTokenError
 
 from src.config import settings
-from src.core.exceptions import ForbiddenError, NotAuthorizedError, NotFoundError
+from src.core.exceptions import ConflictError, ForbiddenError, NotAuthorizedError, NotFoundError
 from src.schemas.users import User, UserLogin, UserRegister
 from src.services.base import BaseService
 
@@ -26,12 +26,12 @@ class AuthService(BaseService):
         }
 
     async def register(self, data: UserRegister) -> dict:
-        user = await self.db.users.user_exists(email=data.email, username=data.username)
+        existing_user = await self.db.users.user_exists(email=data.email, username=data.username)
 
-        if user:
-            if user.email == data.email:
-                raise ForbiddenError("Пользователь с таким email уже существует")
-            raise ForbiddenError("Пользователь с таким username уже существует")
+        if existing_user:
+            if existing_user.email == data.email:
+                raise ConflictError("Пользователь с таким email уже существует")
+            raise ConflictError("Пользователь с таким username уже существует")
 
         hashed_password = self.hash_password(data.password)
         await self.db.users.create(
@@ -48,7 +48,7 @@ class AuthService(BaseService):
         user = await self.db.users.get_filtered_one(email=data.email)
 
         if not user or not self.verify_password(data.password, user.hashed_password):
-            raise NotAuthorizedError("Неверный email или пароль")
+            raise ForbiddenError("Неверный email или пароль")
 
         return self._generate_tokens(user.id, fingerprint)
 
@@ -67,12 +67,6 @@ class AuthService(BaseService):
             raise NotAuthorizedError("Пользователь не найден")
 
         return self._generate_tokens(user.id, fingerprint)
-
-    async def get_current_user(self, user_id) -> User:
-        user = await self.db.users.get_by_id(user_id)
-        if not user:
-            raise NotAuthorizedError("Пользователь не найден")
-        return user
 
     @staticmethod
     def create_access_token(data: dict) -> str:
@@ -128,7 +122,11 @@ class AuthService(BaseService):
         if not access_token:
             raise NotAuthorizedError("Токен отсутствует")
 
-        user_id = self.decode_access_token(access_token).get("user_id")
+        decoded_token = self.decode_access_token(access_token)
+        if not decoded_token:
+            raise NotAuthorizedError("Невалидный или истёкший токен")
+
+        user_id = decoded_token.get("user_id")
         if not user_id:
             raise NotAuthorizedError("Невалидный токен")
 

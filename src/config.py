@@ -17,11 +17,11 @@ class Settings(BaseSettings):
     REDIS_PASSWORD: str
 
     @property
-    def redis_url(self):
+    def redis_uri(self):
         return f"redis://:{self.REDIS_PASSWORD}@{self.REDIS_HOST}:{self.REDIS_PORT}"
 
     @property
-    def db_url(self):
+    def db_uri(self):
         return f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASS}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
 
     JWT_SECRET_KEY: str

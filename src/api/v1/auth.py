@@ -2,9 +2,9 @@ from typing import Annotated
 
 from fastapi import APIRouter, Header, HTTPException, Request, Response
 
-from src.api.dependencies import CurrentUserDep, AuthServiceDep
+from src.api.dependencies import AuthServiceDep, CurrentUserDep
 from src.config import settings
-from src.core.exceptions import ForbiddenError
+from src.core.exceptions import ConflictError, ForbiddenError, NotAuthorizedError
 from src.schemas.users import User, UserLogin, UserRegister
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -24,21 +24,23 @@ def set_auth_tokens(response: Response, tokens: dict):
 async def register(service: AuthServiceDep, data: UserRegister):
     try:
         return await service.register(data)
-    except ForbiddenError as e:
-        raise HTTPException(403, e.message)
-
+    except ConflictError as e:
+        raise HTTPException(409, e.message)
 
 
 @router.post("/login")
 async def login(
-        service: AuthServiceDep,
-        data: UserLogin,
-        response: Response,
-        user_agent: Annotated[str | None, Header(include_in_schema=False)] = None
+    service: AuthServiceDep,
+    data: UserLogin,
+    response: Response,
+    user_agent: Annotated[str | None, Header(include_in_schema=False)] = None,
 ):
-    tokens = await service.create_tokens(data, fingerprint=user_agent)
-    set_auth_tokens(response, tokens)
-    return {"status": True, "message": "Вы успешно вошли"}
+    try:
+        tokens = await service.create_tokens(data, fingerprint=user_agent)
+        set_auth_tokens(response, tokens)
+        return {"status": True, "message": "Вы успешно вошли"}
+    except ForbiddenError as e:
+        raise HTTPException(401, e.message)
 
 
 @router.get("/me", response_model=User)
@@ -56,14 +58,17 @@ async def logout(response: Response):
 @router.post("/refresh")
 async def refresh_tokens(
     service: AuthServiceDep,
-        response: Response,
-        request: Request,
-        user_agent: Annotated[str | None, Header(include_in_schema=False)] = None
+    response: Response,
+    request: Request,
+    user_agent: Annotated[str | None, Header(include_in_schema=False)] = None,
 ):
     refresh_token = request.cookies.get("refresh_token")
     if not refresh_token:
         raise HTTPException(401, "Refresh токен отсутствует")
 
-    tokens = await service.refresh(refresh_token, fingerprint=user_agent)
-    set_auth_tokens(response, tokens)
-    return {"status": True, "message": "Токены обновлены!"}
+    try:
+        tokens = await service.refresh(refresh_token, fingerprint=user_agent)
+        set_auth_tokens(response, tokens)
+        return {"status": True, "message": "Токены обновлены!"}
+    except NotAuthorizedError as e:
+        raise HTTPException(401, e.message)

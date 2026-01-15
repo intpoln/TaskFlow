@@ -25,3 +25,8 @@ class ConflictError(TaskFlowException):
 class NotAuthorizedError(TaskFlowException):
     def __init__(self, message: str = "Требуется авторизация"):
         super().__init__(message)
+
+
+class RepositoryError(TaskFlowException):
+    def __init__(self, message: str = "Связанная запись не найдена"):
+        super().__init__(message)

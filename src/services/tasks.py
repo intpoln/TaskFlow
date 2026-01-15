@@ -1,3 +1,4 @@
+from src.core.exceptions import ConflictError
 from src.schemas.tasks import Task, TaskPUT, TaskRequest, TaskUpdate
 from src.services.base import BaseService
 
@@ -14,44 +15,48 @@ class TaskServiceDep(BaseService):
     async def create_task(self, user_id: int, data: TaskRequest) -> Task:
         await self.check_project_category_exists(data.project_id, user_id, data.category_id)
 
-        task = await self.db.tasks.create(
-            {
-                **data.model_dump(exclude_unset=True),
-                "owner_id": user_id,
-            }
-        )
-        await self.db.commit()
-        return task
+        try:
+            task = await self.db.tasks.create(
+                {
+                    **data.model_dump(exclude_unset=True),
+                    "owner_id": user_id,
+                }
+            )
+            await self.db.commit()
+            return task
+        except ConflictError:
+            raise ConflictError(f"Задача с названием {data.title} уже существует")
 
     async def edit_task(self, task_id: int, user_id: int, data: TaskPUT) -> Task:
         await self.check_project_category_exists(data.project_id, user_id, data.category_id)
         await self.check_task_exists(task_id, user_id)
 
-        task = await self.db.tasks.update(
-            {
-                **data.model_dump(exclude_unset=True),
-                "owner_id": user_id,
-            }
-        )
-        await self.db.commit()
-
-        return task
+        try:
+            task = await self.db.tasks.update(
+                data={**data.model_dump(), "owner_id": user_id}, id=task_id
+            )
+            await self.db.commit()
+            return task
+        except ConflictError:
+            raise ConflictError(f"Задача с названием {data.title} уже существует")
 
     async def update_task(self, task_id: int, user_id: int, data: TaskUpdate) -> Task:
-        await self.check_project_category_exists(data.project_id, user_id, data.category_id)
-        await self.check_task_exists(task_id, user_id)
+        existed_task = await self.check_task_exists(task_id, user_id)
 
-        task = await self.db.tasks.update(
-            {
-                **data.model_dump(),
-                "owner_id": user_id,
-            }
+        await self.check_project_category_exists(
+            existed_task.project_id, user_id, existed_task.category_id
         )
-        await self.db.commit()
 
-        return task
+        try:
+            task = await self.db.tasks.update(
+                data={**data.model_dump(exclude_unset=True), "owner_id": user_id}, id=task_id
+            )
+            await self.db.commit()
+            return task
+        except ConflictError:
+            raise ConflictError(f"Задача с названием {data.title} уже существует")
 
     async def delete_task(self, task_id: int, user_id: int) -> None:
         await self.check_task_exists(task_id, user_id)
-        await self.db.tasks.delete(task_id=task_id, user_id=user_id)
+        await self.db.tasks.delete(id=task_id)
         await self.db.commit()

@@ -1,10 +1,10 @@
 from typing import Annotated
 
-from fastapi import Depends, Request, HTTPException
+from fastapi import Depends, HTTPException, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.core.exceptions import ForbiddenError, NotAuthorizedError, NotFoundError
 from src.database import get_db
-from src.core.exceptions import NotFoundError, ForbiddenError
 from src.models import UserOrm
 from src.services.auth import AuthService
 from src.services.categories import CategoryService
@@ -48,34 +48,34 @@ ProjectServiceDep = Annotated[ProjectService, Depends(get_project_service)]
 UserServiceDep = Annotated[UserService, Depends(get_user_service)]
 CategoryServiceDep = Annotated[CategoryService, Depends(get_category_service)]
 
-async def get_current_user(
-        service: AuthServiceDep,
-        request: Request
-):
+
+async def get_current_user(service: AuthServiceDep, request: Request):
     access_token = request.cookies.get("access_token")
 
     try:
         return await service.get_user_by_token(access_token)
     except NotFoundError as e:
-        raise HTTPException(404, str(e))
+        raise HTTPException(404, e.message)
+    except NotAuthorizedError as e:
+        raise HTTPException(401, e.message)
+
 
 CurrentUserDep = Annotated[UserOrm | None, Depends(get_current_user)]
 
-async def get_current_user_id(
-        user: CurrentUserDep
-):
+
+async def get_current_user_id(user: CurrentUserDep):
     return user.id
+
 
 CurrentUserIdDep = Annotated[int, Depends(get_current_user_id)]
 
-async def user_is_superuser(
-        service: AuthServiceDep,
-        user: UserOrm = Depends(get_current_user)
-):
+
+async def user_is_superuser(service: AuthServiceDep, user: UserOrm = Depends(get_current_user)):
     try:
         await service.verify_superuser(user)
         return True
     except ForbiddenError as e:
-        raise HTTPException(403, str(e))
+        raise HTTPException(403, e.message)
+
 
 UserIsSuperuserDep = Annotated[bool, Depends(user_is_superuser)]

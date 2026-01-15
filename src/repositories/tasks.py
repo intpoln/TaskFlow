@@ -1,5 +1,6 @@
 from sqlalchemy import or_, select
 
+from src.core.exceptions import NotFoundError
 from src.models import CategoryOrm, ProjectOrm, TaskOrm
 from src.repositories.base import BaseRepository
 
@@ -33,4 +34,7 @@ class TaskRepository(BaseRepository):
     async def get_user_task(self, task_id: int, user_id: int) -> TaskOrm:
         query = select(self.model).filter_by(id=task_id, owner_id=user_id)
         result = await self.session.execute(query)
-        return result.scalar_one_or_none()
+        task = result.scalar_one_or_none()
+        if not task:
+            raise NotFoundError(f"Задача с id {task_id} не найдена")
+        return task

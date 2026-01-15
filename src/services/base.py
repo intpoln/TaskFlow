@@ -1,4 +1,5 @@
 from src.core.exceptions import NotFoundError
+from src.schemas.tasks import Task
 from src.uow.uow import UnitOfWork
 
 
@@ -24,13 +25,13 @@ class BaseService:
 
         return True
 
-    async def check_task_exists(self, task_id: int, user_id: int) -> bool:
+    async def check_task_exists(self, task_id: int, user_id: int) -> Task:
         task = await self.db.tasks.get_user_task(task_id=task_id, user_id=user_id)
 
         if not task:
             raise NotFoundError("Задача не найдена")
 
-        return True
+        return task
 
     async def check_project_category_exists(
         self, project_id: int, user_id: int, category_id: int
