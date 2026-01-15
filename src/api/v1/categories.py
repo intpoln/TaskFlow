@@ -39,7 +39,7 @@ async def get_categories(service: CategoryServiceDep):
     "",
     response_model=Category,
     dependencies=[Depends(user_is_superuser)],
-    summary="Создание категории (только суперюзер)",
+    summary="Создание категории (только для суперюзера)",
 )
 async def create_category(service: CategoryServiceDep, data: CategoryAdd):
     """Создает новую категорию.

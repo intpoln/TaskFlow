@@ -159,7 +159,9 @@ class AuthService(BaseService):
             Payload токена или None при ошибке.
         """
         try:
-            payload = jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM])
+            payload = jwt.decode(
+                token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM]
+            )
             if payload.get("type") != "access":
                 return None
             return payload

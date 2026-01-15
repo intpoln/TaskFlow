@@ -16,7 +16,7 @@ router = APIRouter(prefix="/users", tags=["Users"])
     "",
     response_model=list[User],
     dependencies=[Depends(user_is_superuser)],
-    summary="Получение списка всех пользователей (только суперюзер)",
+    summary="Получение списка всех пользователей (только для суперюзера)",
 )
 @cache(expire=15)
 async def get_users(service: UserServiceDep):
