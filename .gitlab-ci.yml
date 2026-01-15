@@ -5,12 +5,16 @@ stages:
 build-job:
   stage: build
   script:
-    - cd TaskFlow/
-    - . build_image
+    - source build_image
+  only:
+    - main
 
 deploy-job:  
   stage: deploy
   script:
-    - cd TaskFlow/
     - docker compose down
     - docker compose up -d
+  only:
+    - main
+  needs:
+    - build-job
