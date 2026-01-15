@@ -5,7 +5,7 @@ stages:
 build-job:
   stage: build
   script:
-    - source build_image
+    - docker build -t intpoln/taskflow .
   only:
     - main
 
