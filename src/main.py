@@ -75,15 +75,6 @@ async def custom_swagger_ui_html():
 async def root():
     return RedirectResponse(url="/docs")
 
-@app.get("/debug")
-def debug(request: Request):
-    return {
-        "url": str(request.url),
-        "base_url": str(request.base_url),
-        "scheme": request.url.scheme,
-        "headers": dict(request.headers),
-    }
-
 
 if __name__ == "__main__":
     uvicorn.run("src.main:app", host="127.0.0.1", reload=True)
