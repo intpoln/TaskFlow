@@ -10,12 +10,13 @@ test-job:
   stage: test
   script:
     - docker compose --env-file .env-test -f docker-compose.test.yml up -d
+    - uv sync
     - |
       for i in {1..20}; do
         docker compose -f docker-compose.test.yml exec test_db pg_isready && break
         sleep 1
       done
-    - uv pytest -v
+    - pytest -v
   after_script:
     - docker compose -f docker-compose.test.yml down
   only:
