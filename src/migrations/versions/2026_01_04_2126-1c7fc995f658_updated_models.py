@@ -21,7 +21,7 @@ depends_on: Union[str, Sequence[str], None] = None
 
 def upgrade() -> None:
     task_status_enum = sa.Enum("TODO", "IN_PROGRESS", "DONE", name="task_status")
-    task_status_enum.create(op.get_bind())
+    task_status_enum.create(op.get_bind(), checkfirst=True)
     """Upgrade schema."""
     op.create_table(
         "projects",

@@ -11,7 +11,7 @@ from src.models import *  # noqa:F403
 # access to the values within the .ini file in use.
 config = context.config
 
-config.set_main_option("sqlalchemy.url", f"{settings.db_uri}?async_fallback=True")
+config.set_main_option("sqlalchemy.url", f"{settings.DB_URI}?async_fallback=True")
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.

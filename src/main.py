@@ -23,7 +23,7 @@ from src.api.v1.projects import router as project_router
 from src.api.v1.tasks import router as task_router
 from src.api.v1.users import router as users_router
 from src.config import settings
-from src.database import engine
+from src.database import engine_null_pool
 from src.init import redis_manager
 
 
@@ -41,7 +41,7 @@ app = FastAPI(docs_url=None, lifespan=lifespan)
 app.add_middleware(TrustedHostMiddleware, allowed_hosts=["*"])
 app.add_middleware(SessionMiddleware, secret_key=settings.JWT_SECRET_KEY, https_only=True)
 
-admin = Admin(app, engine, authentication_backend=authentication_backend)
+admin = Admin(app, engine_null_pool, authentication_backend=authentication_backend)
 admin.add_view(UserAdmin)
 admin.add_view(CategoryAdmin)
 
