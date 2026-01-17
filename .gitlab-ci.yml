@@ -2,10 +2,9 @@ stages:
   - test
   - deploy
 
-before_script: cd TaskFlow/
-
 test-job:
   stage: test
+  before_script: cp "$ENV_TEST" .env-test
   script:
     - docker compose --env-file .env-test -f docker-compose.test.yml up -d
     - |
@@ -13,7 +12,7 @@ test-job:
         docker compose -f docker-compose.test.yml exec test_db pg_isready && break
         sleep 1
       done
-    - pytest -v
+    - uv pytest -v
   after_script:
     - docker compose -f docker-compose.test.yml down
   only:
@@ -21,6 +20,7 @@ test-job:
 
 deploy-job:
   stage: deploy
+  before_script: cp "$ENV" .env
   script:
     - docker compose build
     - docker compose down
