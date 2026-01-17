@@ -16,7 +16,7 @@ test-job:
         docker compose -f docker-compose.test.yml exec test_db pg_isready && break
         sleep 1
       done
-    - pytest -v
+    - uv run pytest -v
   after_script:
     - docker compose -f docker-compose.test.yml down
   only:
