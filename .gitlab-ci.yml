@@ -2,9 +2,12 @@ stages:
   - test
   - deploy
 
+before_script:
+  - cp "$ENV_TEST" .env-test
+  - cp "$ENV" .env
+
 test-job:
   stage: test
-  before_script: cp "$ENV_TEST" .env-test
   script:
     - docker compose --env-file .env-test -f docker-compose.test.yml up -d
     - |
@@ -20,7 +23,6 @@ test-job:
 
 deploy-job:
   stage: deploy
-  before_script: cp "$ENV" .env
   script:
     - docker compose build
     - docker compose down
