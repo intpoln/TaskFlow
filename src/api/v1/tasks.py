@@ -15,7 +15,7 @@ router = APIRouter(prefix="/v1/tasks", tags=["Таски"])
 
 
 @router.get("", response_model=list[Task], summary="Получение задач, удовлетворяющих поиску")
-@cache(expire=15)
+@cache(expire=60)
 async def get_tasks(
     service: TaskServiceDep,
     user_id: CurrentUserIdDep,
@@ -40,7 +40,7 @@ async def get_tasks(
     return await service.get_tasks(user_id, search, status)
 
 
-@router.post("", response_model=Task, summary="Создание задачи")
+@router.post("", response_model=Task, summary="Создание задачи", status_code=201)
 async def create_task(service: TaskServiceDep, user_id: CurrentUserIdDep, data: TaskRequest):
     """Создает новую задачу.
 
@@ -67,7 +67,7 @@ async def create_task(service: TaskServiceDep, user_id: CurrentUserIdDep, data: 
 
 
 @router.get("/{task_id}", response_model=Task, summary="Получение определенной задачи")
-@cache(expire=15)
+@cache(expire=60)
 async def get_task(task_id: int, service: TaskServiceDep, user_id: CurrentUserIdDep):
     """Получает задачу по ID.
 

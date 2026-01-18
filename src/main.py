@@ -4,11 +4,12 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 
 import uvicorn
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.docs import get_swagger_ui_html
 from fastapi.responses import RedirectResponse
 from fastapi_cache import FastAPICache
+from fastapi_cache.backends.inmemory import InMemoryBackend
 from fastapi_cache.backends.redis import RedisBackend
 from sqladmin import Admin
 from starlette.middleware.sessions import SessionMiddleware
@@ -33,6 +34,10 @@ async def lifespan(app: FastAPI):
     FastAPICache.init(RedisBackend(redis_manager._redis), prefix="fastapi-cache")
     yield
     await redis_manager.close()
+
+
+if settings.MODE == "TEST":
+    FastAPICache.init(InMemoryBackend(), prefix="fastapi-cache")
 
 
 logging.basicConfig(level=logging.INFO)

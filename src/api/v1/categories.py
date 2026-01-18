@@ -10,7 +10,7 @@ from src.api.dependencies import CategoryServiceDep, get_current_user, user_is_s
 from src.core.exceptions import ConflictError, NotFoundError
 from src.schemas.categories import Category, CategoryAdd, CategoryUpdate
 
-router = APIRouter(prefix="/categories", tags=["Категории"])
+router = APIRouter(prefix="/v1/categories", tags=["Категории"])
 
 
 @router.get(
@@ -19,7 +19,7 @@ router = APIRouter(prefix="/categories", tags=["Категории"])
     dependencies=[Depends(get_current_user)],
     summary="Получение всех категорий",
 )
-@cache(expire=15)
+@cache(expire=60)
 async def get_categories(service: CategoryServiceDep):
     """Получает список всех категорий.
 
@@ -40,6 +40,7 @@ async def get_categories(service: CategoryServiceDep):
     response_model=Category,
     dependencies=[Depends(user_is_superuser)],
     summary="Создание категории (только для суперюзера)",
+    status_code=201,
 )
 async def create_category(service: CategoryServiceDep, data: CategoryAdd):
     """Создает новую категорию.
@@ -67,6 +68,7 @@ async def create_category(service: CategoryServiceDep, data: CategoryAdd):
     dependencies=[Depends(get_current_user)],
     summary="Получение отдельной категории",
 )
+@cache(expire=60)
 async def get_category(service: CategoryServiceDep, category_id: int):
     """Получает категорию по ID.
 

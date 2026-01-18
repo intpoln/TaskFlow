@@ -7,13 +7,14 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Header, HTTPException, Request, Response
+from fastapi_cache.decorator import cache
 
 from src.api.dependencies import AuthServiceDep, CurrentUserDep
 from src.config import settings
 from src.core.exceptions import ConflictError, ForbiddenError, NotAuthorizedError
 from src.schemas.users import User, UserLogin, UserRegister
 
-router = APIRouter(prefix="/auth", tags=["Аутентификация"])
+router = APIRouter(prefix="/v1/auth", tags=["Аутентификация"])
 
 
 def set_auth_tokens(response: Response, tokens: dict):
@@ -32,7 +33,7 @@ def set_auth_tokens(response: Response, tokens: dict):
     )
 
 
-@router.post("/register", summary="Регистрация пользователя")
+@router.post("/register", summary="Регистрация пользователя", status_code=201)
 async def register(service: AuthServiceDep, data: UserRegister):
     """Регистрирует нового пользователя.
 
@@ -82,6 +83,7 @@ async def login(
 
 
 @router.get("/me", response_model=User, summary="Получение данных пользователя")
+@cache(expire=60)
 async def me(user: CurrentUserDep):
     """Возвращает данные текущего пользователя.
 

@@ -33,9 +33,9 @@ class UnitOfWork:
         ...     await uow.commit()
     """
 
-    def __init__(self):
+    def __init__(self, session_factory=async_session_maker):
         """Инициализирует UoW с фабрикой сессий."""
-        self.session_factory = async_session_maker
+        self.session_factory = session_factory
 
     async def __aenter__(self):
         """Создаёт сессию и инициализирует репозитории.

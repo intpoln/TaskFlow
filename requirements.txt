@@ -7,6 +7,7 @@ asyncpg==0.31.0
 bcrypt==5.0.0
 billiard==4.2.4
 celery==5.6.1
+certifi==2026.1.4
 click==8.3.1
 click-didyoumean==0.3.1
 click-plugins==1.1.1.2
@@ -19,6 +20,8 @@ fastapi-cache2==0.2.2
 greenlet==3.3.0
 gunicorn==23.0.0
 h11==0.16.0
+httpcore==1.0.9
+httpx==0.28.1
 idna==3.11
 iniconfig==2.3.0
 itsdangerous==2.2.0

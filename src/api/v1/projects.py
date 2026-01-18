@@ -10,11 +10,11 @@ from src.api.dependencies import CurrentUserIdDep, ProjectServiceDep
 from src.core.exceptions import ConflictError, NotFoundError
 from src.schemas.projects import Project, ProjectPUT, ProjectRequest, ProjectUpdate
 
-router = APIRouter(prefix="/projects", tags=["Проекты"])
+router = APIRouter(prefix="/v1/projects", tags=["Проекты"])
 
 
 @router.get("", response_model=list[Project], summary="Получение всех категорий")
-@cache(expire=15)
+@cache(expire=60)
 async def get_projects(service: ProjectServiceDep, user_id: CurrentUserIdDep):
     """Получает список проектов текущего пользователя.
 
@@ -30,7 +30,7 @@ async def get_projects(service: ProjectServiceDep, user_id: CurrentUserIdDep):
     return await service.get_projects(user_id)
 
 
-@router.post("", response_model=Project, summary="Создание проекта")
+@router.post("", response_model=Project, summary="Создание проекта", status_code=201)
 async def create_project(
     service: ProjectServiceDep, data: ProjectRequest, user_id: CurrentUserIdDep
 ):
@@ -54,7 +54,7 @@ async def create_project(
 
 
 @router.get("/{project_id}", response_model=Project, summary="Получение определенного проекта")
-@cache(expire=15)
+@cache(expire=60)
 async def get_project(project_id: int, service: ProjectServiceDep, user_id: CurrentUserIdDep):
     """Получает проект по ID.
 

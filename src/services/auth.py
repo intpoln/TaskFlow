@@ -4,6 +4,7 @@
 """
 
 from datetime import datetime, timedelta, timezone
+from uuid import uuid4
 
 import bcrypt
 import jwt
@@ -93,7 +94,10 @@ class AuthService(BaseService):
         Raises:
             ForbiddenError: Неверный email или пароль.
         """
-        user = await self.db.users.get_filtered_one(email=data.email)
+        try:
+            user = await self.db.users.get_filtered_one(email=data.email)
+        except NotFoundError:
+            raise ForbiddenError("Неверный email или пароль")
 
         if not user or not self.verify_password(data.password, user.hashed_password):
             raise ForbiddenError("Неверный email или пароль")
@@ -145,7 +149,7 @@ class AuthService(BaseService):
         expire = datetime.now(timezone.utc) + timedelta(
             minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
         )
-        to_encode |= {"exp": expire, "type": "access"}
+        to_encode |= {"exp": expire, "type": "access", "jti": str(uuid4())}
         return jwt.encode(to_encode, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
 
     @staticmethod
@@ -180,7 +184,7 @@ class AuthService(BaseService):
         """
         to_encode = data.copy()
         expire = datetime.now(timezone.utc) + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
-        to_encode |= {"exp": expire, "type": "refresh"}
+        to_encode |= {"exp": expire, "type": "refresh", "jti": str(uuid4())}
         return jwt.encode(
             to_encode, settings.JWT_REFRESH_SECRET_KEY, algorithm=settings.JWT_ALGORITHM
         )

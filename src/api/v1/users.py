@@ -9,7 +9,7 @@ from fastapi_cache.decorator import cache
 from src.api.dependencies import UserServiceDep, user_is_superuser
 from src.schemas.users import User
 
-router = APIRouter(prefix="/users", tags=["🫅 Пользователи"])
+router = APIRouter(prefix="/v1/users", tags=["🫅 Пользователи"])
 
 
 @router.get(
@@ -18,7 +18,7 @@ router = APIRouter(prefix="/users", tags=["🫅 Пользователи"])
     dependencies=[Depends(user_is_superuser)],
     summary="Получение списка всех пользователей (только для суперюзера)",
 )
-@cache(expire=15)
+@cache(expire=60)
 async def get_users(service: UserServiceDep):
     """Получает список всех пользователей.
 
