@@ -8,6 +8,7 @@ from typing import Annotated
 
 from fastapi import Depends, HTTPException, Request
 from sqlalchemy.ext.asyncio import AsyncSession
+from starlette.status import HTTP_401_UNAUTHORIZED, HTTP_403_FORBIDDEN, HTTP_404_NOT_FOUND
 
 from src.core.exceptions import ForbiddenError, NotAuthorizedError, NotFoundError
 from src.database import get_db
@@ -134,9 +135,9 @@ async def get_current_user(service: AuthServiceDep, request: Request):
     try:
         return await service.get_user_by_token(access_token)
     except NotFoundError as e:
-        raise HTTPException(404, e.message)
+        raise HTTPException(HTTP_404_NOT_FOUND, e.message)
     except NotAuthorizedError as e:
-        raise HTTPException(401, e.message)
+        raise HTTPException(HTTP_401_UNAUTHORIZED, e.message)
 
 
 CurrentUserDep = Annotated[UserOrm | None, Depends(get_current_user)]
@@ -176,7 +177,7 @@ async def user_is_superuser(service: AuthServiceDep, user: UserOrm = Depends(get
         await service.verify_superuser(user)
         return True
     except ForbiddenError as e:
-        raise HTTPException(403, e.message)
+        raise HTTPException(HTTP_403_FORBIDDEN, e.message)
 
 
 UserIsSuperuserDep = Annotated[bool, Depends(user_is_superuser)]

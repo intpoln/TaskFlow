@@ -93,7 +93,7 @@ class BaseService:
         return task
 
     async def check_project_category_exists(
-        self, project_id: int, user_id: int, category_id: int
+        self, project_id: int, user_id: int, category_id: int | None = None
     ) -> bool:
         """Проверяет существование проекта и категории.
 
@@ -111,6 +111,7 @@ class BaseService:
         Raises:
             NotFoundError: Проект или категория не найдены.
         """
-        project = await self.check_project_exists(project_id, user_id)
-        category = await self.check_category_exists(category_id)
-        return project and category
+        await self.check_project_exists(project_id, user_id)
+        if category_id:
+            await self.check_category_exists(category_id)
+        return True

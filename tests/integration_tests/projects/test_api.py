@@ -49,9 +49,7 @@ class TestProjectsApi:
 
     async def test_user_patch_project(self, user_ac):
         create_data = {"title": "PatchProject", "description": "Old description"}
-        create_response = await user_ac.post(
-            self.base_url, json=create_data
-        )
+        create_response = await user_ac.post(self.base_url, json=create_data)
         project_id = create_response.json()["id"]
 
         patch_data = {"description": "New description"}

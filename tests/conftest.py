@@ -42,6 +42,7 @@ async def create_category(setup_db):
         await db.commit()
         assert category.id == 1
 
+
 @pytest.fixture(scope="session", autouse=True)
 async def create_superuser(setup_db):
     await create_superuser_script()
@@ -53,8 +54,8 @@ async def ac() -> AsyncGenerator[AsyncClient]:
         yield ac
 
 
-@pytest.fixture(scope="session", autouse=True)
-async def superuser_ac() -> AsyncGenerator[AsyncClient]:
+@pytest.fixture()
+async def superuser_ac(create_superuser) -> AsyncGenerator[AsyncClient]:
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://localhost") as ac:
         response = await ac.post(
             "/v1/auth/login",
@@ -105,7 +106,7 @@ async def user_ac(ac) -> AsyncGenerator[AsyncClient]:
         ac.cookies.clear()
 
 
-@pytest.fixture(scope="session", autouse=True)
+@pytest.fixture(scope="session")
 async def user_project(user) -> dict:
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://localhost") as ac:
         login = await ac.post(

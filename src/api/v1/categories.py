@@ -5,6 +5,7 @@
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi_cache.decorator import cache
+from starlette.status import HTTP_201_CREATED, HTTP_404_NOT_FOUND, HTTP_409_CONFLICT
 
 from src.api.dependencies import CategoryServiceDep, get_current_user, user_is_superuser
 from src.core.exceptions import ConflictError, NotFoundError
@@ -40,7 +41,7 @@ async def get_categories(service: CategoryServiceDep):
     response_model=Category,
     dependencies=[Depends(user_is_superuser)],
     summary="Создание категории (только для суперюзера)",
-    status_code=201,
+    status_code=HTTP_201_CREATED,
 )
 async def create_category(service: CategoryServiceDep, data: CategoryAdd):
     """Создает новую категорию.
@@ -60,7 +61,7 @@ async def create_category(service: CategoryServiceDep, data: CategoryAdd):
     try:
         return await service.create_category(data)
     except ConflictError as e:
-        raise HTTPException(409, e.message)
+        raise HTTPException(HTTP_409_CONFLICT, e.message)
 
 
 @router.get(
@@ -85,7 +86,7 @@ async def get_category(service: CategoryServiceDep, category_id: int):
     try:
         return await service.get_category(category_id)
     except NotFoundError:
-        raise HTTPException(404, f"Категория с id {category_id} не найдена")
+        raise HTTPException(HTTP_404_NOT_FOUND, f"Категория с id {category_id} не найдена")
 
 
 @router.patch(
@@ -113,9 +114,9 @@ async def update_category(service: CategoryServiceDep, category_id: int, data: C
     try:
         return await service.update_category(category_id, data)
     except NotFoundError:
-        raise HTTPException(404, f"Категория с id {category_id} не найдена")
+        raise HTTPException(HTTP_404_NOT_FOUND, f"Категория с id {category_id} не найдена")
     except ConflictError as e:
-        raise HTTPException(409, e.message)
+        raise HTTPException(HTTP_409_CONFLICT, e.message)
 
 
 @router.delete(
@@ -140,4 +141,4 @@ async def delete_category(service: CategoryServiceDep, category_id: int):
         await service.delete_category(category_id)
         return {"status": True}
     except NotFoundError:
-        raise HTTPException(404, f"Категория с id {category_id} не найдена")
+        raise HTTPException(HTTP_404_NOT_FOUND, f"Категория с id {category_id} не найдена")

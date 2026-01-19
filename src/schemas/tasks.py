@@ -36,7 +36,9 @@ class TaskRequest(BaseModel):
     title: str
     description: str
     status: TaskStatus = TaskStatus.TODO
-    deadline: datetime = Field(default_factory=default_deadline, examples=[default_deadline()])
+    deadline: datetime | None = Field(
+        default_factory=default_deadline, examples=[default_deadline()]
+    )
     notify: bool = False
     project_id: int
     category_id: int | None = None
@@ -131,10 +133,10 @@ class TaskPUT(BaseModel):
     title: str
     description: str
     status: TaskStatus
-    deadline: datetime
-    notify: bool
+    deadline: datetime | None = None
+    notify: bool = False
     project_id: int
-    category_id: int
+    category_id: int | None = None
 
     @field_validator("category_id", mode="before")
     @classmethod
