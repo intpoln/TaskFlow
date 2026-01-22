@@ -7,7 +7,9 @@
 import logging
 
 from redis.asyncio import Redis
-from redis.exceptions import ConnectionError as RedisConnectionError
+from redis.exceptions import ConnectionError
+
+from src.core.exceptions import RedisConnectionError
 
 
 class RedisManager:
@@ -55,12 +57,13 @@ class RedisManager:
             await self._redis.ping()
             self._connected = True
             logging.info(f"Подключение к Redis - успешно. host={self.host}, port={self.port}")
-        except RedisConnectionError as e:
+        except ConnectionError as ex:
             logging.error(
-                f"Не удалось подключиться к Redis - {e}. host={self.host}, port={self.port}"
+                f"Не удалось подключиться к Redis - {ex}. host={self.host}, port={self.port}"
             )
             self._connected = False
             self._redis = None
+            raise RedisConnectionError
 
     async def set(self, key: str, value: str, expire: int = None):
         """Сохраняет значение по ключу.
@@ -77,8 +80,9 @@ class RedisManager:
                 await self._redis.set(key, value, ex=expire)
             else:
                 await self._redis.set(key, value)
-        except RedisConnectionError:
+        except ConnectionError:
             self._connected = False
+            raise RedisConnectionError
 
     async def get(self, key: str):
         """Получает значение по ключу.
@@ -93,8 +97,9 @@ class RedisManager:
             return None
         try:
             return await self._redis.get(key)
-        except RedisConnectionError:
+        except ConnectionError:
             self._connected = False
+            raise RedisConnectionError
 
     async def delete(self, key: str):
         """Удаляет ключ.
@@ -106,10 +111,62 @@ class RedisManager:
             return
         try:
             await self._redis.delete(key)
-        except RedisConnectionError:
+        except ConnectionError:
             self._connected = False
+            raise RedisConnectionError
 
     async def close(self):
         """Закрывает подключение к Redis."""
         await self._redis.close()
         self._connected = False
+
+    async def set_oauth_state(self, state: str, data: str = "pending", expire: int = 300):
+        """Добавляет OAuth state с TTL 5 минут..
+
+        Args:
+            state: OAuth state.
+            data: Любое значение (проверка будет по ключу).
+            expire: Время жизни в секундах.
+        """
+        key = f"oauth_state:{state}"
+        await self.set(key, data, expire)
+
+    async def verify_oauth_state(self, state: str) -> bool:
+        """Проверяет и удаляет OAuth state (one-time use).
+
+        Returns:
+            True или False если невалиден/истёк.
+        """
+        key = f"oauth_state:{state}"
+        value = await self.get(key)
+
+        if value:
+            await self.delete(key)
+            return True
+        return False
+
+    async def set_jwk(self, provider: str, jwk_data: str, expire: int = 86400):
+        """Сохраняет JWK сертификаты провайдера.
+
+        Args:
+            provider: Название провайдера (google, github).
+            jwk_data: JSON строка с JWK.
+            expire: TTL в секундах (по умолчанию 1 день).
+        """
+        key = f"jwk:{provider}"
+        await self.set(key, jwk_data, expire)
+
+    async def get_jwk(self, provider: str) -> str | None:
+        """Получает JWK сертификаты провайдера.
+
+        Args:
+            provider: Название провайдера.
+
+        Returns:
+            JSON строка с JWK или None.
+        """
+        key = f"jwk:{provider}"
+        value = await self.get(key)
+        if not value:
+            return None
+        return value

@@ -3,7 +3,7 @@
 Содержит методы для поиска и получения пользователей.
 """
 
-from sqlalchemy import or_, select
+from sqlalchemy import select
 
 from src.core.exceptions import NotFoundError
 from src.models import UserOrm
@@ -20,7 +20,7 @@ class UserRepository(BaseRepository[UserOrm]):
 
     model = UserOrm
 
-    async def user_exists(self, email: str, username: str) -> UserOrm | None:
+    async def user_exists(self, email: str) -> UserOrm | None:
         """Проверяет существование пользователя с указанным email или username.
 
         Используется при регистрации для предотвращения дубликатов.
@@ -32,9 +32,7 @@ class UserRepository(BaseRepository[UserOrm]):
         Returns:
             Найденный пользователь или None.
         """
-        query = select(self.model).where(
-            or_(self.model.email == email, self.model.username == username)
-        )
+        query = select(self.model).where(self.model.email == email)
         result = await self.session.execute(query)
         return result.scalar_one_or_none()
 

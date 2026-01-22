@@ -60,8 +60,8 @@ async def create_category(service: CategoryServiceDep, data: CategoryAdd):
     """
     try:
         return await service.create_category(data)
-    except ConflictError as e:
-        raise HTTPException(HTTP_409_CONFLICT, e.message)
+    except ConflictError as ex:
+        raise HTTPException(HTTP_409_CONFLICT, ex.message)
 
 
 @router.get(
@@ -115,8 +115,8 @@ async def update_category(service: CategoryServiceDep, category_id: int, data: C
         return await service.update_category(category_id, data)
     except NotFoundError:
         raise HTTPException(HTTP_404_NOT_FOUND, f"Категория с id {category_id} не найдена")
-    except ConflictError as e:
-        raise HTTPException(HTTP_409_CONFLICT, e.message)
+    except ConflictError as ex:
+        raise HTTPException(HTTP_409_CONFLICT, ex.message)
 
 
 @router.delete(

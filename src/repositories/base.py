@@ -118,9 +118,9 @@ class BaseRepository(Generic[ModelType]):
             add_stmt = insert(self.model).values(**data).returning(self.model)
             result = await self.session.execute(add_stmt)
             return result.scalar_one()
-        except IntegrityError as e:
+        except IntegrityError as ex:
             await self.session.rollback()
-            self._handle_integrity_error(e)
+            self._handle_integrity_error(ex)
 
     async def update(self, id: int, data: dict, **filters) -> ModelType | None:
         """Обновляет существующую запись.
@@ -151,9 +151,9 @@ class BaseRepository(Generic[ModelType]):
             if not updated:
                 raise NotFoundError(f"{self.model.__name__} с id {id} не найден")
             return updated
-        except IntegrityError as e:
+        except IntegrityError as ex:
             await self.session.rollback()
-            self._handle_integrity_error(e)
+            self._handle_integrity_error(ex)
 
     async def delete(self, id: int) -> bool:
         """Удаляет запись по ID.

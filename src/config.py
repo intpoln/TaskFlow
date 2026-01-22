@@ -35,6 +35,15 @@ class Settings(BaseSettings):
     SUPERUSER_USERNAME: str
     SUPERUSER_PASSWORD: str
 
+    GOOGLE_CLIENT_ID: str
+    GOOGLE_CLIENT_SECRET: str
+
+    GOOGLE_OAUTH_GET_TOKEN_URI: str = "https://oauth2.googleapis.com/token"
+    GOOGLE_OAUTH_AUTHORIZE_URI: str = "https://accounts.google.com/o/oauth2/auth"
+    GOOGLE_JWK_URI: str = "https://www.googleapis.com/oauth2/v3/certs"
+    GOOGLE_ISSUER: str = "https://accounts.google.com"
+    GOOGLE_CALLBACK_URI: str = "http://localhost:8000/oauth/google/callback"
+
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
 

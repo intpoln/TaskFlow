@@ -18,6 +18,7 @@ from starlette.middleware.trustedhost import TrustedHostMiddleware
 sys.path.append(str(Path(__file__).parent.parent))
 
 from src.admin.config import CategoryAdmin, UserAdmin, authentication_backend
+from src.api.oauth import router as oauth_router
 from src.api.v1.auth import router as auth_router
 from src.api.v1.categories import router as category_router
 from src.api.v1.projects import router as project_router
@@ -51,10 +52,12 @@ admin.add_view(UserAdmin)
 admin.add_view(CategoryAdmin)
 
 app.include_router(auth_router)
+app.include_router(oauth_router)
 app.include_router(users_router)
 app.include_router(category_router)
 app.include_router(project_router)
 app.include_router(task_router)
+
 
 app.add_middleware(
     CORSMiddleware,

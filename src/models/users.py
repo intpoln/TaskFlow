@@ -31,7 +31,9 @@ class UserOrm(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     email: Mapped[str] = mapped_column(String(60), unique=True)
-    hashed_password: Mapped[str] = mapped_column()
-    username: Mapped[str] = mapped_column(String(30), unique=True)
+    hashed_password: Mapped[str | None] = mapped_column(nullable=True)
+    username: Mapped[str] = mapped_column(String(128), unique=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=func.now())
     is_superuser: Mapped[bool] = mapped_column(default=False)
+
+    google_id: Mapped[str | None] = mapped_column(String(255), unique=True, nullable=True)

@@ -49,9 +49,10 @@ async def register(service: AuthServiceDep, data: UserRegister):
         HTTPException 409: Email или username уже заняты.
     """
     try:
-        return await service.register(data)
-    except ConflictError as e:
-        raise HTTPException(HTTP_409_CONFLICT, e.message)
+        user = await service.register(data)
+        return {"status": True, "message": f"Пользователь {user.username} успешно зарегистрирован"}
+    except ConflictError as ex:
+        raise HTTPException(HTTP_409_CONFLICT, ex.message)
 
 
 @router.post("/login", summary="Аутентификация пользователя")
@@ -79,8 +80,8 @@ async def login(
         tokens = await service.create_tokens(data, fingerprint=user_agent)
         set_auth_tokens(response, tokens)
         return {"status": True, "message": "Вы успешно вошли"}
-    except ForbiddenError as e:
-        raise HTTPException(HTTP_401_UNAUTHORIZED, e.message)
+    except ForbiddenError as ex:
+        raise HTTPException(HTTP_401_UNAUTHORIZED, ex.message)
 
 
 @router.get("/me", response_model=User, summary="Получение данных пользователя")
@@ -144,5 +145,5 @@ async def refresh_tokens(
         tokens = await service.refresh(refresh_token, fingerprint=user_agent)
         set_auth_tokens(response, tokens)
         return {"status": True, "message": "Токены обновлены!"}
-    except NotAuthorizedError as e:
-        raise HTTPException(HTTP_401_UNAUTHORIZED, e.message)
+    except NotAuthorizedError as ex:
+        raise HTTPException(HTTP_401_UNAUTHORIZED, ex.message)

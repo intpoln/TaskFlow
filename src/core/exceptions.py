@@ -76,3 +76,17 @@ class RepositoryError(TaskFlowException):
 
     def __init__(self, message: str = "Связанная запись не найдена"):
         super().__init__(message)
+
+
+class RedisConnectionError(TaskFlowException):
+    """Ошибка подключения к Redis."""
+
+    def __init__(self, message: str = "Внутренняя ошибка сервиса, пожалуйста, попробуйте позже"):
+        super().__init__(message)
+
+
+class ExternalServiceError(TaskFlowException):
+    """Ошибка с внешними сервисами."""
+
+    def __init__(self, message: str = "Ошибка с внешним сервисом"):
+        super().__init__(message)

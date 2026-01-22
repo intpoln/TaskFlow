@@ -190,6 +190,22 @@ docker compose up -d --build
 - **Админ-панель (SQLAdmin)**: http://localhost:8000/admin
 - **API Endpoints**: http://localhost:8000/api/v1
 
+
+### Тестирование приложения
+
+Запустите контейнер с тестовой БД следующей командой: 
+
+```bash
+docker compose --env-file .env-test -f docker-compose.test.yml up -d
+```
+
+После запуска контейнера с тестовой БД запустите тесты из корневой директории:
+
+```bash
+pytest
+```
+
+
 ## 📚 API документация
 
 API документация доступна в двух форматах:

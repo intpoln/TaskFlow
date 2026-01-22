@@ -61,10 +61,10 @@ async def create_task(service: TaskServiceDep, user_id: CurrentUserIdDep, data: 
     """
     try:
         return await service.create_task(user_id, data)
-    except ConflictError as e:
-        raise HTTPException(HTTP_409_CONFLICT, e.message)
-    except NotFoundError as e:
-        raise HTTPException(HTTP_404_NOT_FOUND, e.message)
+    except ConflictError as ex:
+        raise HTTPException(HTTP_409_CONFLICT, ex.message)
+    except NotFoundError as ex:
+        raise HTTPException(HTTP_404_NOT_FOUND, ex.message)
 
 
 @router.get("/{task_id}", response_model=Task, summary="Получение определенной задачи")
@@ -85,8 +85,8 @@ async def get_task(task_id: int, service: TaskServiceDep, user_id: CurrentUserId
     """
     try:
         return await service.get_task(task_id, user_id)
-    except NotFoundError as e:
-        raise HTTPException(HTTP_404_NOT_FOUND, e.message)
+    except NotFoundError as ex:
+        raise HTTPException(HTTP_404_NOT_FOUND, ex.message)
 
 
 @router.put("/{task_id}", response_model=Task, summary="Полная замена данных задачи")
@@ -110,10 +110,10 @@ async def edit_task(
     """
     try:
         return await service.edit_task(task_id=task_id, user_id=user_id, data=data)
-    except NotFoundError as e:
-        raise HTTPException(HTTP_404_NOT_FOUND, e.message)
-    except ConflictError as e:
-        raise HTTPException(HTTP_409_CONFLICT, e.message)
+    except NotFoundError as ex:
+        raise HTTPException(HTTP_404_NOT_FOUND, ex.message)
+    except ConflictError as ex:
+        raise HTTPException(HTTP_409_CONFLICT, ex.message)
 
 
 @router.patch("/{task_id}", response_model=Task, summary="Частичное обновление данных задачи")
@@ -137,10 +137,10 @@ async def update_task(
     """
     try:
         return await service.update_task(task_id=task_id, user_id=user_id, data=data)
-    except NotFoundError as e:
-        raise HTTPException(HTTP_404_NOT_FOUND, e.message)
-    except ConflictError as e:
-        raise HTTPException(HTTP_409_CONFLICT, e.message)
+    except NotFoundError as ex:
+        raise HTTPException(HTTP_404_NOT_FOUND, ex.message)
+    except ConflictError as ex:
+        raise HTTPException(HTTP_409_CONFLICT, ex.message)
 
 
 @router.delete("/{task_id}", summary="Удаление задачи")
@@ -161,5 +161,5 @@ async def delete_task(task_id: int, service: TaskServiceDep, user_id: CurrentUse
     try:
         await service.delete_task(task_id, user_id)
         return {"status": True}
-    except NotFoundError as e:
-        raise HTTPException(HTTP_404_NOT_FOUND, e.message)
+    except NotFoundError as ex:
+        raise HTTPException(HTTP_404_NOT_FOUND, ex.message)

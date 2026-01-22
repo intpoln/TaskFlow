@@ -134,10 +134,10 @@ async def get_current_user(service: AuthServiceDep, request: Request):
 
     try:
         return await service.get_user_by_token(access_token)
-    except NotFoundError as e:
-        raise HTTPException(HTTP_404_NOT_FOUND, e.message)
-    except NotAuthorizedError as e:
-        raise HTTPException(HTTP_401_UNAUTHORIZED, e.message)
+    except NotFoundError as ex:
+        raise HTTPException(HTTP_404_NOT_FOUND, ex.message)
+    except NotAuthorizedError as ex:
+        raise HTTPException(HTTP_401_UNAUTHORIZED, ex.message)
 
 
 CurrentUserDep = Annotated[UserOrm | None, Depends(get_current_user)]
@@ -176,8 +176,8 @@ async def user_is_superuser(service: AuthServiceDep, user: UserOrm = Depends(get
     try:
         await service.verify_superuser(user)
         return True
-    except ForbiddenError as e:
-        raise HTTPException(HTTP_403_FORBIDDEN, e.message)
+    except ForbiddenError as ex:
+        raise HTTPException(HTTP_403_FORBIDDEN, ex.message)
 
 
 UserIsSuperuserDep = Annotated[bool, Depends(user_is_superuser)]

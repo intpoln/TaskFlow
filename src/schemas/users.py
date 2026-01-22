@@ -18,12 +18,12 @@ class UserRegister(BaseModel):
     """
 
     email: EmailStr
-    password: str
+    password: str | None = None
     username: str
 
 
 class UserLogin(BaseModel):
-    """Схема авторизации пользователя.
+    """Схема аутентификации пользователя.
 
     Attributes:
         email: Email адрес для входа.
@@ -48,6 +48,34 @@ class UserAdd(BaseModel):
     email: EmailStr
     hashed_password: str
     username: str
+
+
+class UserAddOAuthGoogle(BaseModel):
+    """Внутренняя схема для создания пользователя через google OAuth в БД.
+
+    Attributes:
+        email: Email адрес.
+        google_id: ID пользователя из google OAuth.
+        username: Логин пользователя.
+    """
+
+    email: EmailStr
+    google_id: str
+    username: str | None = None
+
+
+class UserAddOAuthGithub(BaseModel):
+    """Внутренняя схема для создания пользователя через GitHub OAuth в БД.
+
+    Attributes:
+        email: Email адрес.
+        github_id: ID пользователя из GitHub OAuth.
+        username: Логин пользователя.
+    """
+
+    email: EmailStr | None = None
+    github_id: str
+    username: str | None = None
 
 
 class User(BaseModel):

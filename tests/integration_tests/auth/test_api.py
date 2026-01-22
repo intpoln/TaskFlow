@@ -23,17 +23,6 @@ class TestAuthApi:
         )
         assert response.status_code == 409
 
-    async def test_register_error_duplicate_username(self, ac):
-        response = await ac.post(
-            self.register_url,
-            json={
-                "email": "unique@mail.com",
-                "username": self.reserved_user_data["username"],
-                "password": "TestPass",
-            },
-        )
-        assert response.status_code == 409
-
     async def test_login(self, ac):
         response = await ac.post(
             self.login_url,
