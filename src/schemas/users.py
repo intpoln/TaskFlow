@@ -60,8 +60,6 @@ class User(BaseModel):
         email: Email адрес.
         username: Логин пользователя.
         created_at: Дата регистрации.
-        telegram_id: ID в Telegram (опционально).
-        telegram_username: Username в Telegram (опционально).
     """
 
     model_config = ConfigDict(from_attributes=True)
@@ -70,5 +68,3 @@ class User(BaseModel):
     email: EmailStr
     username: str
     created_at: datetime
-    telegram_id: int | None = None
-    telegram_username: str | None = None

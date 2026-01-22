@@ -24,8 +24,6 @@ class UserOrm(Base):
         hashed_password: Хеш пароля (bcrypt).
         username: Логин пользователя (уникальный).
         created_at: Дата и время регистрации.
-        telegram_id: ID пользователя в Telegram (опционально).
-        telegram_username: Username в Telegram (опционально).
         is_superuser: Флаг суперпользователя (админ).
     """
 
@@ -36,6 +34,4 @@ class UserOrm(Base):
     hashed_password: Mapped[str] = mapped_column()
     username: Mapped[str] = mapped_column(String(30), unique=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=func.now())
-    telegram_id: Mapped[int | None] = mapped_column(nullable=True, default=None)
-    telegram_username: Mapped[str | None] = mapped_column(nullable=True, default=None)
     is_superuser: Mapped[bool] = mapped_column(default=False)
