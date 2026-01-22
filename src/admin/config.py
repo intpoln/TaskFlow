@@ -100,8 +100,8 @@ authentication_backend = AdminAuth(secret_key=settings.JWT_SECRET_KEY)
 class UserAdmin(ModelView, model=User):
     """Административное представление модели User.
 
-    Только просмотр пользователей, без возможности
-    создания, редактирования или удаления.
+    Просмотр пользователей, возможность дать/забрать права
+    суперюзера.
 
     Attributes:
         column_exclude_list: Скрытые поля (hashed_password).
@@ -112,7 +112,8 @@ class UserAdmin(ModelView, model=User):
 
     column_exclude_list = [User.hashed_password]
     can_create = False
-    can_edit = False
+    can_edit = True
+    form_columns = [User.is_superuser]
     can_delete = False
     can_view_details = True
     name = "User"
@@ -122,7 +123,6 @@ class UserAdmin(ModelView, model=User):
         User.id,
         User.username,
         User.created_at,
-        User.telegram_username,
     ]
 
 
