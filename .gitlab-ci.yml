@@ -1,6 +1,11 @@
 stages:
   - test
+  - build
   - deploy
+
+variables:
+  IMAGE_NAME: intpoln/taskflow
+  IMAGE_TAG: latest
 
 before_script:
   - cp "$ENV_TEST" .env-test
@@ -12,7 +17,7 @@ test-job:
     - docker compose --env-file .env-test -f docker-compose.test.yml up -d
     - uv sync
     - |
-      for i in {1..20}; do
+      for i in {1..30}; do
         docker compose -f docker-compose.test.yml exec test_db pg_isready && break
         sleep 1
       done
@@ -22,10 +27,16 @@ test-job:
   only:
     - main
 
+build-job:
+  stage: build
+  script:
+    - docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
+  only:
+    - main
+
 deploy-job:
   stage: deploy
   script:
-    - docker compose build
     - docker compose down
     - docker compose up -d
   only:

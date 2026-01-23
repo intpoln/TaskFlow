@@ -24,6 +24,7 @@ from src.core.exceptions import (
 from src.init import redis_manager
 from src.schemas.users import User, UserLogin, UserRegister
 from src.services.base import BaseService
+from src.tasks.email_tasks import send_welcome_email
 from src.utils.oauth import get_google_jwks
 
 
@@ -88,6 +89,9 @@ class AuthService(BaseService):
             }
         )
         await self.db.commit()
+
+        send_welcome_email.delay(user.email)
+
         return user
 
     async def create_tokens(self, data: UserLogin, fingerprint: str | None = None) -> dict:
