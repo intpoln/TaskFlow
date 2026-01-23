@@ -1,152 +1,189 @@
-# 📋 TaskFlow
+<div align="center">
 
-TaskFlow — это REST API для управления задачами, проектами и категориями с полноценной системой аутентификации и авторизации. Проект реализован с использованием современных паттернов проектирования и следует принципам SOLID.
+# TaskFlow
 
-🌐 **Демо**: https://pet-taskflow.ddns.net/docs
+**REST API для управления задачами и проектами**
 
-## 📋 Содержание
+[![Python](https://img.shields.io/badge/Python-3.13-3776AB?logo=python&logoColor=white)](https://python.org)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.128-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-18-4169E1?logo=postgresql&logoColor=white)](https://postgresql.org)
+[![Redis](https://img.shields.io/badge/Redis-8.4-DC382D?logo=redis&logoColor=white)](https://redis.io)
+[![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)](https://docker.com)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-- [Описание](#описание)
-- [Технологии](#технологии)
-- [Архитектура](#архитектура)
-- [Функциональность](#функциональность)
-- [Установка и запуск](#установка-и-запуск)
-- [API документация](#api-документация)
-- [Переменные окружения](#переменные-окружения)
-- [Команды для работы](#команды-для-работы)
-- [Авторы](#авторы)
+[Demo](https://pet-taskflow.ddns.net/docs) • [API Docs](https://pet-taskflow.ddns.net/docs) • [Admin Panel](https://pet-taskflow.ddns.net/admin)
 
-## 📖 Описание
+</div>
 
-TaskFlow — это полнофункциональное REST API, состоящее из:
-- **Backend**: REST API на FastAPI с асинхронной поддержкой
-- **База данных**: PostgreSQL 18
-- **Кэширование**: Redis 8.4
-- **Веб-сервер**: Gunicorn + Uvicorn
-- **Админ-панель**: SQLAdmin
-- **Тестирование**: Pytest
+---
 
-Проект позволяет пользователям:
-- Регистрироваться и авторизовываться с использованием JWT токенов
-- Создавать и управлять своими проектами
-- Создавать задачи с привязкой к проектам и категориям
-- Управлять категориями задач
-- Искать задачи по названию, категории или проекту
-- Изменять статус задач
-- Фильтровать задачи по статусу
+## О проекте
 
-## 🛠 Технологии
+TaskFlow — полнофункциональный REST API для управления задачами, проектами и категориями. Проект демонстрирует применение современных практик backend-разработки: чистую архитектуру, паттерны проектирования и production-ready инфраструктуру.
+
+### Ключевые особенности
+
+- **JWT + OAuth 2.0** — аутентификация через логин/пароль и Google
+- **CRUD операции** — управление проектами, задачами и категориями  
+- **Поиск и фильтрация** — по названию, статусу, категории, проекту
+- **Кэширование** — Redis для оптимизации производительности
+- **Фоновые задачи** — Celery + RabbitMQ для email-уведомлений
+- **Админ-панель** — SQLAdmin для управления данными
+- **CI/CD** — автоматические тесты, сборка и деплой
+
+---
+
+## Технологический стек
+
+<table>
+<tr>
+<td width="50%">
 
 ### Backend
-- **Python 3.13**
-- **FastAPI 0.128.0** — современный асинхронный веб-фреймворк
-- **SQLAlchemy 2** — ORM с асинхронной поддержкой
-- **PostgreSQL 18** (asyncpg 0.31.0) — реляционная база данных
-- **Redis 7.1.0** (fastapi-cache2 0.2.2) — кэширование ответов API
-- **Alembic 1.17.2** — миграции базы данных
-- **Pydantic 2.12.5** — валидация данных и схемы
-- **PyJWT 2.10.1** — JWT токены для аутентификации
-- **Passlib[bcrypt]** — хеширование паролей
-- **SQLAdmin 0.22.0** — админ-панель
-- **Gunicorn 23.0.0** + **Uvicorn 0.40.0** — ASGI сервер
-- **Pytest** - тестирование работы кода
+| Технология | Версия | Назначение |
+|------------|--------|------------|
+| Python | 3.13 | Язык программирования |
+| FastAPI | 0.128 | Веб-фреймворк |
+| SQLAlchemy | 2.0 | ORM (async) |
+| Pydantic | 2.12 | Валидация данных |
+| Alembic | 1.17 | Миграции БД |
+| Celery | 5.6 | Фоновые задачи |
+| Pytest | 9.0 | Тестирование |
+
+</td>
+<td width="50%">
 
 ### Инфраструктура
-- **Docker** — контейнеризация
-- **Docker Compose** — оркестрация контейнеров
-- **Nginx** — reverse proxy (production)
+| Технология | Версия | Назначение |
+|------------|--------|------------|
+| PostgreSQL | 18 | База данных |
+| Redis | 8.4 | Кэширование |
+| RabbitMQ | 3.13 | Message broker |
+| Docker | - | Контейнеризация |
+| Gunicorn | 23.0 | WSGI/ASGI сервер |
+| Nginx | - | Reverse proxy |
+| GitLab CI | - | CI/CD pipeline |
 
-## 🏗 Архитектура
+</td>
+</tr>
+</table>
 
-Проект следует принципам **SOLID** и использует следующие паттерны проектирования:
+### Дополнительные библиотеки
 
-- **Repository Pattern (вместе с DAO)** — абстракция доступа к данным (`src/repositories/`)
-  - Инкапсулирует всю логику работы с БД
-  - Централизованная обработка ошибок целостности данных
-  - Упрощает тестирование и поддержку
+- **python-jose** — JWT токены
+- **passlib[bcrypt]** — хеширование паролей
+- **httpx** — HTTP клиент
+- **fastapi-cache2** — кэширование ответов API
+- **SQLAdmin** — админ-панель
+- **MailerSend** — отправка email
 
-- **Unit of Work (UoW)** — управление транзакциями (`src/uow/`)
-  - Координация работы нескольких репозиториев
-  - Атомарность операций
-  - Управление жизненным циклом сессии БД
+---
 
-- **Service Layer** — бизнес-логика приложения (`src/services/`)
-  - Отделение бизнес-логики от доступа к данным
-  - Валидация на уровне сервисов
-  - Обработка бизнес-исключений
+## Архитектура
 
-- **Data Mapper** — разделение ORM-моделей и бизнес-логики
-  - ORM модели (`src/models/`) отделены от бизнес-логики
-  - Pydantic схемы (`src/schemas/`) для API и валидации
-
-### Структура проекта
+Проект построен на принципах **Clean Architecture** и **SOLID**:
 
 ```
 src/
-├── api/          # FastAPI роутеры и зависимости
-│   └── v1/       # API версионирование
-├── models/       # SQLAlchemy ORM модели
-├── schemas/      # Pydantic схемы (DTO)
-├── repositories/ # Repository Pattern (DAO)
-├── services/     # Бизнес-логика (Service Layer)
-├── uow/          # Unit of Work
-├── core/         # Исключения и базовые классы
-├── admin/        # SQLAdmin конфигурация
-├── connectors/   # Подключения к внешним сервисам (Redis)
-└── scripts/      # Утилиты (создание суперпользователя)
+├── api/              # API слой (роутеры, зависимости)
+│   └── v1/           # Версионирование API
+├── services/         # Бизнес-логика (Service Layer)
+├── repositories/     # Доступ к данным (Repository + DAO)
+├── uow/              # Управление транзакциями (Unit of Work)
+├── models/           # ORM модели (SQLAlchemy)
+├── schemas/          # DTO (Pydantic)
+├── core/             # Кастомные исключения
+├── tasks/            # Celery задачи
+├── integrations/     # Внешние сервисы (Email)
+├── admin/            # SQLAdmin конфигурация
+└── connectors/       # Подключения (Redis)
+tests/                # Тесты
 ```
 
-## ✨ Функциональность
+### Применённые паттерны
 
-### Для всех пользователей
-- Регистрация и авторизация
-- Просмотр API документации (Swagger UI)
+| Паттерн | Расположение | Описание |
+|---------|--------------|----------|
+| **Repository** | `repositories/` | Абстракция доступа к данным |
+| **Unit of Work** | `uow/` | Координация транзакций между репозиториями |
+| **Service Layer** | `services/` | Инкапсуляция бизнес-логики |
+| **Dependency Injection** | `api/dependencies.py` | Внедрение зависимостей через FastAPI |
+| **DTO (Data Transfer Object)** | `schemas/` | Pydantic схемы для API |
 
-### Для авторизованных пользователей
-- Создание, редактирование и удаление своих проектов
-- Создание, редактирование и удаление своих задач
-- Привязка задач к проектам и категориям
-- Поиск задач по названию, описанию, категории или проекту
-- Изменение статуса задач (TODO, IN_PROGRESS, DONE)
-- Установка дедлайнов для задач
-- Просмотр списка категорий
+---
 
-### Для суперпользователей
-- Полный доступ к админ-панели SQLAdmin
-- Создание и управление категориями
+## Функциональность
+
+### Аутентификация и авторизация
+
+- Регистрация с email-подтверждением (MailerSend)
+- JWT аутентификация (access + refresh токены)
+- OAuth 2.0 через Google
+- User-agent fingerprinting для безопасности
+- Разграничение прав (user / superuser)
+
+### API возможности
+
+| Ресурс | Операции | Особенности |
+|--------|----------|-------------|
+| **Проекты** | CRUD | Привязка к пользователю |
+| **Задачи** | CRUD + поиск | Статусы (TODO, IN_PROGRESS, DONE), дедлайны |
+| **Категории** | CRUD | Управление только для superuser |
+| **Пользователи** | Просмотр | Только для superuser |
 
 ### Технические особенности
-- 🔒 Защита на уровне БД (composite foreign keys, unique constraints)
-- 🔐 JWT-аутентификация с refresh-токенами и user-agent fingerprinting
-- 💾 Кэширование API-ответов с учетом пользователя и параметров поиска
-- ⚡ Асинхронная обработка запросов
-- 🛡️ Централизованная обработка ошибок с кастомными исключениями
-- 📝 Автоматические миграции БД при запуске
 
-## 🚀 Установка и запуск
+- Асинхронная обработка всех запросов
+- Кэширование с учётом пользователя и параметров
+- Централизованная обработка ошибок
+- Автоматические миграции при запуске
+- Healthcheck для всех сервисов
 
-### Предварительные требования
+---
 
-- Docker установлен на вашем компьютере
-- Git для клонирования репозитория
+## Быстрый старт
 
-### Клонирование репозитория
+### Требования
+
+- Docker и Docker Compose
+- Git
+
+### Установка
 
 ```bash
+# Клонирование репозитория
 git clone https://github.com/intpoln/taskflow.git
 cd taskflow
+
+# Создание .env файла (см. .env.example)
+cp .env.example .env
+# Отредактируйте .env, заполнив необходимые значения
+
+# Запуск
+docker compose up -d --build
 ```
 
-### Настройка переменных окружения
+### Доступ
 
-Создайте файл `.env` в корне проекта со следующим содержимым (см. раздел [Переменные окружения](#переменные-окружения)):
+| Сервис | URL |
+|--------|-----|
+| Swagger UI | http://localhost:8000/docs |
+| ReDoc | http://localhost:8000/redoc |
+| Admin Panel | http://localhost:8000/admin |
+| API | http://localhost:8000/v1 |
+
+---
+
+## Конфигурация
+
+### Основные переменные окружения
 
 ```env
 # База данных
 DB_HOST=postgres
 DB_PORT=5432
-DB_USER=db_user
-DB_PASS=db_pass
+DB_USER=taskflow
+DB_PASS=your_password
 DB_NAME=taskflow
 
 # Redis
@@ -154,183 +191,167 @@ REDIS_HOST=redis
 REDIS_PORT=6379
 REDIS_PASSWORD=your_redis_password
 
+# RabbitMQ
+RABBITMQ_HOST=rabbitmq
+RABBITMQ_PORT=5672
+RABBITMQ_DEFAULT_USER=guest
+RABBITMQ_DEFAULT_PASS=guest
+RABBITMQ_DEFAULT_VHOST=/
+
 # JWT
-JWT_SECRET_KEY=your-secret-key-here-min-32-chars
-JWT_REFRESH_SECRET_KEY=your-refresh-secret-key-here-min-32-chars
+JWT_SECRET_KEY=your-secret-key-min-32-chars
+JWT_REFRESH_SECRET_KEY=your-refresh-key-min-32-chars
 JWT_ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=15
 REFRESH_TOKEN_EXPIRE_DAYS=7
-REFRESH_TOKEN_COOKIE_MAX_AGE=604800
 
-# Суперпользователь
+# OAuth 2.0 (Google)
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+
+# Email (MailerSend)
+MAILERSEND_API_KEY=your_mailersend_api_key
+MAILERSEND_FROM_EMAIL=noreply@yourdomain.com
+
+# Superuser
 SUPERUSER_EMAIL=admin@example.com
 SUPERUSER_USERNAME=admin
-SUPERUSER_PASSWORD=admin_password
+SUPERUSER_PASSWORD=secure_password
 ```
 
-### Запуск проекта
+---
 
-1. **Соберите и запустите контейнеры:**
+## API Endpoints
+
+### Аутентификация (`/v1/auth`)
+
+| Метод | Endpoint | Описание |
+|-------|----------|----------|
+| POST | `/register` | Регистрация |
+| POST | `/login` | Вход |
+| POST | `/refresh` | Обновление токена |
+| POST | `/logout` | Выход |
+
+### OAuth (`/oauth`)
+
+| Метод | Endpoint | Описание |
+|-------|----------|----------|
+| GET | `/google` | Начало OAuth flow |
+| GET | `/google/callback` | Callback от Google |
+
+### Проекты (`/v1/projects`)
+
+| Метод | Endpoint | Описание |
+|-------|----------|----------|
+| GET | `/` | Список проектов |
+| POST | `/` | Создать проект |
+| GET | `/{id}` | Получить проект |
+| PUT | `/{id}` | Обновить проект |
+| PATCH | `/{id}` | Частичное обновление |
+| DELETE | `/{id}` | Удалить проект |
+
+### Задачи (`/v1/tasks`)
+
+| Метод | Endpoint | Описание |
+|-------|----------|----------|
+| GET | `/` | Список с фильтрацией |
+| POST | `/` | Создать задачу |
+| GET | `/{id}` | Получить задачу |
+| PUT | `/{id}` | Обновить задачу |
+| PATCH | `/{id}` | Частичное обновление |
+| DELETE | `/{id}` | Удалить задачу |
+
+### Категории (`/v1/categories`)
+
+| Метод | Endpoint | Описание |
+|-------|----------|----------|
+| GET | `/` | Список категорий |
+| POST | `/` | Создать (superuser) |
+| PUT | `/{id}` | Обновить (superuser) |
+| DELETE | `/{id}` | Удалить (superuser) |
+
+---
+
+## Тестирование
 
 ```bash
-docker compose up -d --build
-```
-
-Проект автоматически:
-- Выполнит миграции БД (`alembic upgrade head`)
-- Создаст суперпользователя (если его нет)
-- Запустит Gunicorn сервер
-
-### Доступ к приложению
-
-После успешного запуска приложение будет доступно по адресам:
-
-- **API Документация (Swagger UI)**: http://localhost:8000/docs
-- **API Документация (ReDoc)**: http://localhost:8000/redoc
-- **Админ-панель (SQLAdmin)**: http://localhost:8000/admin
-- **API Endpoints**: http://localhost:8000/api/v1
-
-
-### Тестирование приложения
-
-Запустите контейнер с тестовой БД следующей командой: 
-
-```bash
+# Запуск тестовой БД
 docker compose --env-file .env-test -f docker-compose.test.yml up -d
-```
 
-После запуска контейнера с тестовой БД запустите тесты из корневой директории:
-
-```bash
+# Запуск тестов
 pytest
 ```
 
+---
 
-## 📚 API документация
+## CI/CD Pipeline
 
-API документация доступна в двух форматах:
+Проект использует **GitLab CI/CD** с тремя стадиями:
 
-- **Swagger UI**: http://localhost:8000/docs
-- **ReDoc**: http://localhost:8000/redoc
-
-### Основные эндпоинты
-
-#### Аутентификация
-- `POST /api/v1/auth/register` — Регистрация пользователя
-- `POST /api/v1/auth/login` — Вход в систему (получение токенов)
-- `POST /api/v1/auth/refresh` — Обновление access токена
-- `POST /api/v1/auth/logout` — Выход из системы
-
-#### Пользователи
-- `GET /api/v1/users` — Список всех пользователей (только суперпользователи)
-
-#### Проекты
-- `GET /api/v1/projects` — Список проектов текущего пользователя
-- `POST /api/v1/projects` — Создание проекта
-- `GET /api/v1/projects/{project_id}` — Детали проекта
-- `PUT /api/v1/projects/{project_id}` — Обновление проекта
-- `PATCH /api/v1/projects/{project_id}` — Частичное обновление проекта
-- `DELETE /api/v1/projects/{project_id}` — Удаление проекта
-
-#### Задачи
-- `GET /api/v1/tasks` — Список задач с фильтрацией и поиском
-- `POST /api/v1/tasks` — Создание задачи
-- `GET /api/v1/tasks/{task_id}` — Детали задачи
-- `PUT /api/v1/tasks/{task_id}` — Обновление задачи
-- `PATCH /api/v1/tasks/{task_id}` — Частичное обновление задачи
-- `DELETE /api/v1/tasks/{task_id}` — Удаление задачи
-
-#### Категории
-- `GET /api/v1/categories` — Список всех категорий
-- `POST /api/v1/categories` — Создание категории (только суперпользователи)
-- `PUT /api/v1/categories/{category_id}` — Обновление категории
-- `DELETE /api/v1/categories/{category_id}` — Удаление категории
-
-Полный список эндпоинтов с примерами запросов доступен в Swagger UI.
-
-## 🔐 Переменные окружения
-
-Основные переменные окружения, которые необходимо настроить в файле `.env`:
-
-| Переменная | Описание | Пример |
-|------------|----------|--------|
-| `DB_HOST` | Хост базы данных | `postgres` |
-| `DB_PORT` | Порт базы данных | `5432` |
-| `DB_USER` | Пользователь БД | `postgres` |
-| `DB_PASS` | Пароль БД | `your_password` |
-| `DB_NAME` | Имя базы данных | `taskflow` |
-| `REDIS_HOST` | Хост Redis | `redis` |
-| `REDIS_PORT` | Порт Redis | `6379` |
-| `REDIS_PASSWORD` | Пароль Redis | `your_redis_password` |
-| `JWT_SECRET_KEY` | Секретный ключ для access токенов | `your-secret-key-32-chars-min` |
-| `JWT_REFRESH_SECRET_KEY` | Секретный ключ для refresh токенов | `your-refresh-secret-key-32-chars-min` |
-| `JWT_ALGORITHM` | Алгоритм подписи JWT | `HS256` |
-| `ACCESS_TOKEN_EXPIRE_MINUTES` | Время жизни access токена (минуты) | `15` |
-| `REFRESH_TOKEN_EXPIRE_DAYS` | Время жизни refresh токена (дни) | `7` |
-| `REFRESH_TOKEN_COOKIE_MAX_AGE` | Время жизни cookie refresh токена (секунды) | `604800` |
-| `SUPERUSER_EMAIL` | Email суперпользователя | `admin@example.com` |
-| `SUPERUSER_USERNAME` | Username суперпользователя | `admin` |
-| `SUPERUSER_PASSWORD` | Пароль суперпользователя | `admin_password` |
-
-## 🛠 Команды для работы
-
-### Управление контейнерами
-
-```bash
-# Запуск контейнеров
-docker compose up -d
-
-# Остановка контейнеров
-docker compose down
-
-# Пересборка контейнеров
-docker compose up -d --build
-
-# Просмотр логов
-docker compose logs -f taskflow_backend_service
-docker compose logs -f postgres
-docker compose logs -f redis
+```yaml
+stages:
+  - test      # Запуск pytest
+  - build     # Сборка Docker образа
+  - deploy    # Деплой на сервер
 ```
 
-### Локальная разработка без Docker
+Pipeline автоматически запускается при push в ветку `main`.
 
-1. **Установите зависимости:**
+---
+
+## Локальная разработка
 
 ```bash
-# Используя uv (рекомендуется)
+# Установка зависимостей (рекомендуется uv)
 pip install uv
 uv sync
 
-# Или используя pip
+# Или через pip
 pip install -r requirements.txt
-```
 
-2. **Настройте переменные окружения:**
-
-Создайте `.env` файл с настройками для локальной разработки (используйте `localhost` вместо имен сервисов). Уберите backend сервис из docker-compose
-
-3. **Запустите миграции:**
-
-```bash
+# Миграции
 alembic upgrade head
-```
 
-4. **Создайте суперпользователя:**
-
-```bash
+# Создание superuser (данные из .env)
 python -m src.scripts.create_superuser
-```
 
-5. **Запустите сервер:**
-
-```bash
+# Запуск dev-сервера
 python src/main.py
 ```
 
-## 📄 Лицензия
+---
 
-Этот проект создан в образовательных целях.
+## Структура Docker
 
-## 👤 Автор
+```yaml
+services:
+  backend:     # FastAPI приложение (Gunicorn + Uvicorn)
+  redis:       # Кэширование
+  rabbitmq:    # Message broker для Celery
+  celery:      # Worker для фоновых задач
+```
 
-**intpoln** - [GitHub профиль](https://github.com/intpoln)
+---
+
+## Демо
+
+Проект задеплоен и доступен для тестирования:
+
+**https://pet-taskflow.ddns.net**
+
+- [Swagger UI](https://pet-taskflow.ddns.net/docs) — интерактивная документация
+- [Admin Panel](https://pet-taskflow.ddns.net/admin) — админ-панель
+
+---
+
+## Автор
+
+**intpoln** — [GitHub](https://github.com/intpoln)
+
+---
+
+<div align="center">
+
+Made with FastAPI
+
+</div>
