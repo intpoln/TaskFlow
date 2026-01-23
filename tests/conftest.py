@@ -1,5 +1,6 @@
 import logging
 from typing import AsyncGenerator
+from unittest.mock import patch
 
 import pytest
 from alembic import command
@@ -11,6 +12,7 @@ from src.database import Base, async_session_maker_null_pool, engine_null_pool
 from src.main import app
 from src.models import *  # noqa F403
 from src.scripts.create_superuser import create_superuser as create_superuser_script
+from src.tasks.celery_app import celery_instance
 from src.uow.uow import UnitOfWork
 
 
@@ -20,13 +22,33 @@ def check_test_mode():
 
 
 @pytest.fixture(scope="session", autouse=True)
+def mock_celery(check_test_mode):
+    """Мок Celery."""
+    celery_instance.conf.update(
+        task_always_eager=True,
+        task_eager_propagates=True,
+        broker_url="memory://",
+        result_backend="cache+memory://",
+    )
+
+
+@pytest.fixture(scope="session", autouse=True)
+def mock_email_client(check_test_mode):
+    """Мок EmailClient."""
+    with patch("src.tasks.email_tasks.email_client") as mock:
+        mock.send_welcome.return_value = {"status": "mocked"}
+        mock.send.return_value = {"status": "mocked"}
+        yield mock
+
+
+@pytest.fixture(scope="session", autouse=True)
 async def drop_tables(check_test_mode):
     async with engine_null_pool.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
 
 
 @pytest.fixture(scope="session", autouse=True)
-def setup_db(drop_tables):
+def setup_db(drop_tables, mock_celery, mock_email_client):
     logging.disable(logging.INFO)
     alembic_cfg = Config("alembic.ini")
     alembic_cfg.set_main_option("sqlalchemy.url", settings.DB_URI)

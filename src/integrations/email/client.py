@@ -7,8 +7,8 @@ from src.config import settings
 
 class EmailClient:
     def __init__(self):
-        self._client = MailerSendClient(api_key=settings.MAILSEND_API_KEY)
-        self._from_email = settings.MAILSEND_FROM_EMAIL
+        self._client = MailerSendClient(api_key=settings.MAILERSEND_API_KEY)
+        self._from_email = settings.MAILERSEND_FROM_EMAIL
         self._from_name = settings.MAILSEND_FROM_NAME
 
     def send(self, to: str, subject: str, text: str) -> dict:
