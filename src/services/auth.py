@@ -480,4 +480,7 @@ class AuthService(BaseService):
             }
         )
         await self.db.commit()
+
+        send_welcome_email.delay(user.email)
+
         return user
