@@ -16,7 +16,7 @@ from src.models import UserOrm
 from src.services.auth import AuthService
 from src.services.categories import CategoryService
 from src.services.projects import ProjectService
-from src.services.tasks import TaskServiceDep
+from src.services.tasks import TaskService
 from src.services.users import UserService
 from src.uow.uow import UnitOfWork
 
@@ -31,16 +31,16 @@ async def get_db_manager():
         yield db
 
 
-async def get_task_service(db: UnitOfWork = Depends(get_db_manager)) -> TaskServiceDep:
+async def get_task_service(db: UnitOfWork = Depends(get_db_manager)) -> TaskService:
     """Создаёт сервис задач.
 
     Args:
         db: Unit of Work из зависимости.
 
     Returns:
-        Экземпляр TaskServiceDep.
+        Экземпляр TaskService.
     """
-    return TaskServiceDep(db)
+    return TaskService(db)
 
 
 async def get_project_service(db: UnitOfWork = Depends(get_db_manager)) -> ProjectService:
@@ -101,7 +101,7 @@ DBManagerDep = Annotated[UnitOfWork, Depends(get_db_manager)]
 AuthServiceDep = Annotated[AuthService, Depends(get_auth_service)]
 """Зависимость для получения AuthService."""
 
-TaskServiceDep = Annotated[TaskServiceDep, Depends(get_task_service)]
+TaskServiceDep = Annotated[TaskService, Depends(get_task_service)]
 """Зависимость для получения TaskService."""
 
 ProjectServiceDep = Annotated[ProjectService, Depends(get_project_service)]

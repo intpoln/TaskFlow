@@ -14,12 +14,12 @@ from src.schemas.projects import Project, ProjectPUT, ProjectRequest, ProjectUpd
 router = APIRouter(prefix="/v1/projects", tags=["Проекты"])
 
 
-@router.get("", response_model=list[Project], summary="Получение всех категорий")
+@router.get("", response_model=list[Project], summary="Получение всех проектов")
 @cache(expire=60)
 async def get_projects(service: ProjectServiceDep, user_id: CurrentUserIdDep):
     """Получает список проектов текущего пользователя.
 
-    Результат кэшируется на 15 секунд.
+    Результат кэшируется на 60 секунд.
 
     Args:
         service: Сервис проектов.

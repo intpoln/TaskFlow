@@ -8,7 +8,7 @@ from src.schemas.tasks import Task, TaskPUT, TaskRequest, TaskUpdate
 from src.services.base import BaseService
 
 
-class TaskServiceDep(BaseService):
+class TaskService(BaseService):
     """Сервис управления задачами.
 
     Предоставляет методы для CRUD операций над задачами.
